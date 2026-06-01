@@ -11,12 +11,18 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { BasketProvider } from "@/lib/basket";
+import { SiteHeader } from "@/components/site/site-header";
+import { SiteFooter } from "@/components/site/site-footer";
+import { WhatsAppFab } from "@/components/site/whatsapp-fab";
+import { CookieBanner } from "@/components/site/cookie-banner";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
+        <h1 className="font-display text-7xl text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
@@ -77,19 +83,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Homemade Pakistani Kitchen — Authentic Halal Home Food, Surrey" },
+      {
+        name: "description",
+        content:
+          "Authentic Pakistani home cooking, made in Surrey and delivered fresh to Byfleet, West Byfleet, Woking & Weybridge. Halal. Family recipes.",
+      },
+      { name: "author", content: "Homemade Pakistani Kitchen" },
+      { property: "og:title", content: "Homemade Pakistani Kitchen — Surrey" },
+      {
+        property: "og:description",
+        content:
+          "Halal Pakistani home food, delivered fresh to Byfleet, West Byfleet, Woking and Weybridge.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "Homemade Pakistani Kitchen" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#c2563b" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Restaurant",
+          name: "Homemade Pakistani Kitchen",
+          servesCuisine: ["Pakistani", "South Asian", "Halal"],
+          areaServed: ["Byfleet", "West Byfleet", "Woking", "Weybridge", "Surrey"],
+          priceRange: "££",
+        }),
       },
     ],
   }),
@@ -101,7 +132,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <head>
         <HeadContent />
       </head>
@@ -118,8 +149,18 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <BasketProvider>
+        <div className="flex min-h-screen flex-col bg-background">
+          <SiteHeader />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <SiteFooter />
+        </div>
+        <WhatsAppFab />
+        <CookieBanner />
+        <Toaster richColors position="top-center" />
+      </BasketProvider>
     </QueryClientProvider>
   );
 }
