@@ -9,16 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MenuRouteImport } from './routes/menu'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BasketRouteImport } from './routes/basket'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -29,6 +54,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const BasketRoute = BasketRouteImport.update({
   id: '/basket',
   path: '/basket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,26 +79,41 @@ const MenuSlugRoute = MenuSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/basket': typeof BasketRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/menu': typeof MenuRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/order/$id': typeof OrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/basket': typeof BasketRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/menu': typeof MenuRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/order/$id': typeof OrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/basket': typeof BasketRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/menu': typeof MenuRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/order/$id': typeof OrderIdRoute
 }
@@ -76,38 +121,92 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/basket'
     | '/checkout'
+    | '/contact'
+    | '/faq'
     | '/menu'
+    | '/privacy'
+    | '/terms'
     | '/menu/$slug'
     | '/order/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/basket' | '/checkout' | '/menu' | '/menu/$slug' | '/order/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/basket'
+    | '/checkout'
+    | '/contact'
+    | '/faq'
+    | '/menu'
+    | '/privacy'
+    | '/terms'
+    | '/menu/$slug'
+    | '/order/$id'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/basket'
     | '/checkout'
+    | '/contact'
+    | '/faq'
     | '/menu'
+    | '/privacy'
+    | '/terms'
     | '/menu/$slug'
     | '/order/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   BasketRoute: typeof BasketRoute
   CheckoutRoute: typeof CheckoutRoute
+  ContactRoute: typeof ContactRoute
+  FaqRoute: typeof FaqRoute
   MenuRoute: typeof MenuRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   OrderIdRoute: typeof OrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
       fullPath: '/menu'
       preLoaderRoute: typeof MenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -122,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/basket'
       fullPath: '/basket'
       preLoaderRoute: typeof BasketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -160,9 +266,14 @@ const MenuRouteWithChildren = MenuRoute._addFileChildren(MenuRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   BasketRoute: BasketRoute,
   CheckoutRoute: CheckoutRoute,
+  ContactRoute: ContactRoute,
+  FaqRoute: FaqRoute,
   MenuRoute: MenuRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   OrderIdRoute: OrderIdRoute,
 }
 export const routeTree = rootRouteImport
