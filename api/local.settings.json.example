@@ -1,0 +1,25 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "NODE_ENV": "development",
+
+    "COSMOS_ENDPOINT": "https://<your-account>.documents.azure.com:443/",
+    "COSMOS_KEY": "<primary-key>",
+    "COSMOS_DB": "hpk",
+
+    "ACS_CONNECTION_STRING": "endpoint=https://<acs>.communication.azure.com/;accesskey=...",
+    "ACS_SENDER_EMAIL": "DoNotReply@yourdomain.com",
+    "ACS_SENDER_PHONE": "+44XXXXXXXXXX",
+
+    "STRIPE_SECRET_KEY": "sk_test_...",
+    "STRIPE_WEBHOOK_SECRET": "whsec_...",
+
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=..."
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}

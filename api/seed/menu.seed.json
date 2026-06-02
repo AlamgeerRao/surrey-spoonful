@@ -1,0 +1,30 @@
+[
+  {
+    "id": "chicken-biryani",
+    "slug": "chicken-biryani",
+    "name": "Chicken Biryani",
+    "category": "biryani",
+    "pricePence": 950,
+    "portion": "Serves 1-2",
+    "spice": 2,
+    "halal": true,
+    "available": true,
+    "allergens": ["dairy"],
+    "description": "Layered basmati with slow-cooked chicken.",
+    "image": "/images/chicken-biryani.jpg"
+  },
+  {
+    "id": "chicken-karahi",
+    "slug": "chicken-karahi",
+    "name": "Chicken Karahi",
+    "category": "curry",
+    "pricePence": 1100,
+    "portion": "Serves 2",
+    "spice": 2,
+    "halal": true,
+    "available": true,
+    "allergens": [],
+    "description": "Tomato, ginger and green chilli — wok-fired.",
+    "image": "/images/chicken-karahi.jpg"
+  }
+]
