@@ -9,38 +9,81 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MenuRouteImport } from './routes/menu'
+import { Route as BasketRouteImport } from './routes/basket'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
 
+const MenuRoute = MenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BasketRoute = BasketRouteImport.update({
+  id: '/basket',
+  path: '/basket',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MenuSlugRoute = MenuSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => MenuRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/basket': typeof BasketRoute
+  '/menu': typeof MenuRouteWithChildren
+  '/menu/$slug': typeof MenuSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/basket': typeof BasketRoute
+  '/menu': typeof MenuRouteWithChildren
+  '/menu/$slug': typeof MenuSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/basket': typeof BasketRoute
+  '/menu': typeof MenuRouteWithChildren
+  '/menu/$slug': typeof MenuSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/basket' | '/menu' | '/menu/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/basket' | '/menu' | '/menu/$slug'
+  id: '__root__' | '/' | '/basket' | '/menu' | '/menu/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BasketRoute: typeof BasketRoute
+  MenuRoute: typeof MenuRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/menu': {
+      id: '/menu'
+      path: '/menu'
+      fullPath: '/menu'
+      preLoaderRoute: typeof MenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basket': {
+      id: '/basket'
+      path: '/basket'
+      fullPath: '/basket'
+      preLoaderRoute: typeof BasketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +91,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/menu/$slug': {
+      id: '/menu/$slug'
+      path: '/$slug'
+      fullPath: '/menu/$slug'
+      preLoaderRoute: typeof MenuSlugRouteImport
+      parentRoute: typeof MenuRoute
+    }
   }
 }
 
+interface MenuRouteChildren {
+  MenuSlugRoute: typeof MenuSlugRoute
+}
+
+const MenuRouteChildren: MenuRouteChildren = {
+  MenuSlugRoute: MenuSlugRoute,
+}
+
+const MenuRouteWithChildren = MenuRoute._addFileChildren(MenuRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BasketRoute: BasketRoute,
+  MenuRoute: MenuRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
