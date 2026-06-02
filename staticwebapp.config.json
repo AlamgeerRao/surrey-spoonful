@@ -1,0 +1,29 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/images/*", "*.{css,scss,js,png,gif,ico,jpg,jpeg,svg,webp,woff,woff2,ttf,xml,txt,json}"]
+  },
+  "routes": [
+    { "route": "/api/*", "allowedRoles": ["anonymous"] },
+    { "route": "/admin/*", "allowedRoles": ["authenticated"] }
+  ],
+  "responseOverrides": {
+    "404": { "rewrite": "/index.html", "statusCode": 200 }
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".webp": "image/webp"
+  },
+  "auth": {
+    "rolesSource": "/api/auth/roles",
+    "identityProviders": {
+      "customOpenIdConnectProviders": {}
+    }
+  }
+}
