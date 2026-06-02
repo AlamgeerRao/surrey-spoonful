@@ -11,22 +11,23 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 const isSpa = process.env.BUILD_TARGET === "spa";
 
 export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this. Ignored in SPA mode (no server runtime emitted).
-    server: { entry: "server" },
-    // When BUILD_TARGET=spa, prerender every route's shell into static HTML and ship
-    // the rest client-side. Output is a normal Vite dist/ — works on Azure SWA, Netlify, S3, etc.
-    ...(isSpa && {
-      spa: {
-        enabled: true,
-        prerender: {
+  tanstackStart: isSpa
+    ? {
+        // SPA mode: prerender each route's shell to static HTML, ship the rest client-side.
+        // Output is a normal Vite dist/ — works on Azure SWA, Netlify, S3, etc.
+        spa: {
           enabled: true,
-          outputPath: "/index.html",
-          crawlLinks: true,
-          retryCount: 1,
+          prerender: {
+            enabled: true,
+            outputPath: "/index.html",
+            crawlLinks: true,
+            retryCount: 1,
+          },
         },
+      }
+    : {
+        // SSR mode (Lovable preview / Cloudflare Worker): use our custom server entry
+        // with the catastrophic-500 wrapper.
+        server: { entry: "server" },
       },
-    }),
-  },
 });
