@@ -90,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Authentic Pakistani home cooking, made in Surrey and delivered fresh to Byfleet, West Byfleet, Woking & Weybridge. Halal. Family recipes.",
       },
       { name: "author", content: "Homemade Pakistani Kitchen" },
-      { property: "og:title", content: "Homemade Pakistani Kitchen — Surrey" },
+      { property: "og:title", content: "Homemade Pakistani Kitchen — Authentic Halal Home Food, Surrey" },
       {
         property: "og:description",
         content:
@@ -100,6 +100,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Homemade Pakistani Kitchen" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#c2563b" },
+      { name: "twitter:title", content: "Homemade Pakistani Kitchen — Authentic Halal Home Food, Surrey" },
+      { name: "description", content: "Surrey Spice Hub is a mobile-first UK food ordering website for authentic Pakistani/Asian homemade meals." },
+      { property: "og:description", content: "Surrey Spice Hub is a mobile-first UK food ordering website for authentic Pakistani/Asian homemade meals." },
+      { name: "twitter:description", content: "Surrey Spice Hub is a mobile-first UK food ordering website for authentic Pakistani/Asian homemade meals." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7d7a6092-9c14-4ca2-8ea3-4246fec04944/id-preview-df8ef32b--e05e4a4e-d53d-40d2-ad28-61a69e289da4.lovable.app-1780358659123.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7d7a6092-9c14-4ca2-8ea3-4246fec04944/id-preview-df8ef32b--e05e4a4e-d53d-40d2-ad28-61a69e289da4.lovable.app-1780358659123.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
