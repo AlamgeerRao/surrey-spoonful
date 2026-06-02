@@ -19,17 +19,15 @@ Azure SWA includes a "managed Functions" runtime. The `api/` folder in this repo
 
 ---
 
-## ⚠️ Important: SPA vs SSR
+## SPA build mode (already wired)
 
-The project currently uses **TanStack Start with SSR**. Azure SWA serves **static assets only** for the frontend. Before your first deploy you must build the app as a client-only SPA. Two options:
+Lovable's default `vite.config.ts` runs SSR on Cloudflare Workers (used by the Lovable preview). For Azure SWA we ship a **separate static build** via `vite.config.spa.ts`, which:
 
-**Option A — Quickest:** keep the routes, switch the build target to a Vite SPA (`vite build` outputting to `dist/` with `index.html`). Lose SSR-time SEO prerendering (meta tags still work client-side; crawlers like Google render JS).
+- Uses TanStack Start's raw plugin in SPA mode
+- **Prerenders every route to its own `index.html`** (Home, Menu, all meal detail pages, About, Contact, FAQ, Privacy, Terms — currently 20 routes) — so SEO and social share tags work without JS
+- Outputs to `dist/client/`
 
-**Option B — Full SSR:** Azure SWA is the wrong target. Use **Azure Container Apps** or **App Service** with the Node SSR server. Ask and I'll re-scaffold for that.
-
-The GitHub workflow assumes Option A (output `dist/`). Tell me when you want to flip the build and I'll wire it.
-
----
+The GitHub Action runs `npm run build:spa` and uploads `dist/client/`. Both configs coexist — Lovable's preview keeps SSR; Azure gets the static bundle.
 
 ## 1. Prerequisites
 
