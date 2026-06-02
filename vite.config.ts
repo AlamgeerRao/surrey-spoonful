@@ -13,21 +13,16 @@ const isSpa = process.env.BUILD_TARGET === "spa";
 export default defineConfig({
   tanstackStart: isSpa
     ? {
-        // SPA mode: prerender each route's shell to static HTML, ship the rest client-side.
-        // Output is a normal Vite dist/ — works on Azure SWA, Netlify, S3, etc.
+        // SPA mode: emit a single index.html shell + client bundle. Routes resolve
+        // client-side; Azure SWA's navigationFallback rewrites all deep links to index.html.
+        // Per-route <head> meta is applied client-side (Google renders JS; sufficient for SEO).
         spa: {
           enabled: true,
-          prerender: {
-            enabled: true,
-            outputPath: "/index.html",
-            crawlLinks: true,
-            retryCount: 1,
-          },
+          prerender: { enabled: false, outputPath: "/index.html", crawlLinks: false, retryCount: 0 },
         },
       }
     : {
-        // SSR mode (Lovable preview / Cloudflare Worker): use our custom server entry
-        // with the catastrophic-500 wrapper.
+        // SSR mode (Lovable preview / Cloudflare Worker): custom server entry with error wrapper.
         server: { entry: "server" },
       },
 });
