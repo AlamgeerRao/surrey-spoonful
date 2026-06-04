@@ -24,8 +24,9 @@ export const Route = createFileRoute("/menu")({
 
 function MenuPage() {
   const [active, setActive] = useState<Category | "all">("all");
-  const items = active === "all" ? MENU : MENU.filter((m) => m.category === active);
-
+  const items = active === "all"
+  ? meals
+  : meals.filter((m) => m.category === active);
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-8">
