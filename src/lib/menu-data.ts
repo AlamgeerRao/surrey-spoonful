@@ -54,7 +54,7 @@ export const MENU: MenuItem[] = [
     allergens: ["Dairy"],
     halal: true,
     popular: true,
-    image: PLACEHOLDER,
+    image: "/assets/food/chicken-curry.jpg",
     available: true,
   },
   {
@@ -105,7 +105,7 @@ export const MENU: MenuItem[] = [
     allergens: ["Dairy", "Nuts"],
     halal: true,
     popular: true,
-    image: PLACEHOLDER,
+    image: "/assets/food/chicken-biryani.jpg",
     available: true,
   },
   {
@@ -121,7 +121,7 @@ export const MENU: MenuItem[] = [
     spice: 1,
     allergens: [],
     halal: true,
-    image: PLACEHOLDER,
+    image: "/assets/food/lamb-pulao.jpg",
     available: true,
   },
   {
