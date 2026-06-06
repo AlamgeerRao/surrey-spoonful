@@ -1,4 +1,3 @@
-import { MENU as meals } from "@/lib/menu-data";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MealCard } from "@/components/site/meal-card";
