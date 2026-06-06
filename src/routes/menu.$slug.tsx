@@ -45,7 +45,7 @@ export const Route = createFileRoute("/menu/$slug")({
 });
 
 function MealPage() {
-  const { dish } = Route.useLoaderData();
+  const { dish } = Route.useLoaderData() as { dish: Dish };
   const { add } = useBasket();
   const [sizeId, setSizeId] = useState(dish.sizes[0].id);
   const [qty, setQty] = useState(1);
