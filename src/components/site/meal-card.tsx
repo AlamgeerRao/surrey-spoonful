@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import { addToCart } from "@/lib/cart-store";
 import { priceFromPence, type Dish, type MenuItem } from "@/lib/menu-data";
+import { addToCart } from "@/lib/cart-store";
 
 function Spice({ level }: { level: number }) {
   if (level === 0) {
@@ -20,7 +20,9 @@ function Spice({ level }: { level: number }) {
       {Array.from({ length: 3 }).map((_, i) => (
         <Flame
           key={i}
-          className={`h-3 w-3 ${i < level ? "text-primary" : "text-muted-foreground/40"}`}
+          className={`h-3 w-3 ${
+            i < level ? "text-primary" : "text-muted-foreground/40"
+          }`}
           fill={i < level ? "currentColor" : "none"}
         />
       ))}
@@ -36,7 +38,11 @@ function isDish(x: Dish | MenuItem): x is Dish {
 
 export function MealCard({ item }: Props) {
   const dish = item;
-  const fromPence = isDish(dish) ? priceFromPence(dish) : (dish as MenuItem).pricePence;
+
+  const fromPence = isDish(dish)
+    ? priceFromPence(dish)
+    : (dish as MenuItem).pricePence;
+
   const sizes = isDish(dish) ? dish.sizes : [];
   const hasMultipleSizes = sizes.length > 0;
 
@@ -44,9 +50,13 @@ export function MealCard({ item }: Props) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
-
+      
       {/* IMAGE */}
-      <Link to="/menu/$slug" params={{ slug: dish.slug }} className="relative block aspect-[4/3] overflow-hidden">
+      <Link
+        to="/menu/$slug"
+        params={{ slug: dish.slug }}
+        className="relative block aspect-[4/3] overflow-hidden"
+      >
         <img
           src={dish.image}
           alt={dish.name}
@@ -56,12 +66,24 @@ export function MealCard({ item }: Props) {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          {dish.popular && <Badge className="bg-primary text-primary-foreground">Popular</Badge>}
+          {dish.popular && (
+            <Badge className="bg-primary text-primary-foreground">
+              Popular
+            </Badge>
+          )}
           {dish.weeklySpecial && (
-            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">This week</Badge>
+            <Badge
+              variant="secondary"
+              className="bg-secondary text-secondary-foreground"
+            >
+              This week
+            </Badge>
           )}
           {dish.halal && (
-            <Badge variant="outline" className="border-transparent bg-white/85 text-foreground backdrop-blur">
+            <Badge
+              variant="outline"
+              className="border-transparent bg-white/85 text-foreground backdrop-blur"
+            >
               Halal
             </Badge>
           )}
@@ -70,20 +92,27 @@ export function MealCard({ item }: Props) {
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-
+        
         {/* TITLE + PRICE */}
         <div className="flex items-start justify-between gap-2">
           <Link to="/menu/$slug" params={{ slug: dish.slug }}>
-            <h3 className="font-display text-lg text-foreground hover:text-primary">{dish.name}</h3>
+            <h3 className="font-display text-lg text-foreground hover:text-primary">
+              {dish.name}
+            </h3>
           </Link>
+
           <div className="text-right">
             <div className="font-display text-lg text-foreground">
-              {hasMultipleSizes ? `from ${formatPrice(fromPence)}` : formatPrice(fromPence)}
+              {hasMultipleSizes
+                ? `from ${formatPrice(fromPence)}`
+                : formatPrice(fromPence)}
             </div>
           </div>
         </div>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">{dish.description}</p>
+        <p className="line-clamp-2 text-sm text-muted-foreground">
+          {dish.description}
+        </p>
 
         {/* SIZE SELECTOR */}
         {hasMultipleSizes && (
@@ -112,13 +141,42 @@ export function MealCard({ item }: Props) {
               size="sm"
               disabled={!selectedSize}
               onClick={() => {
-                console.log("ADD TO CART:", dish.name, selectedSize);
+                if (!selectedSize) return;
+
+                const selected = sizes.find(
+                  (s: any) => s.label === selectedSize
+                );
+
+                if (!selected) return;
+
+                addToCart({
+                  id: dish.id,
+                  name: dish.name,
+                  size: selected.label,
+                  pricePence: selected.pricePence,
+                  quantity: 1,
+                });
+
+                console.log("ADDED:", dish.name, selected.label);
               }}
             >
               Add
             </Button>
           ) : (
-            <Button size="sm">
+            <Button
+              size="sm"
+              onClick={() => {
+                addToCart({
+                  id: dish.id,
+                  name: dish.name,
+                  size: "standard",
+                  pricePence: fromPence || 0,
+                  quantity: 1,
+                });
+
+                console.log("ADDED:", dish.name);
+              }}
+            >
               Add
             </Button>
           )}
