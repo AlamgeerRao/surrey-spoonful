@@ -6,12 +6,35 @@ type CartItem = {
   quantity: number;
 };
 
-let cart: CartItem[] = [];
+const STORAGE_KEY = "hpk-cart";
 
-// simple subscribers (like global state)
+// ✅ Load cart from browser storage
+function loadCart(): CartItem[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+// ✅ Save cart to browser storage
+function saveCart(cart: CartItem[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+  } catch {
+    // ignore errors
+  }
+}
+
+// ✅ initialise from storage
+let cart: CartItem[] = loadCart();
+
+// subscribers (simple global state)
 const listeners: (() => void)[] = [];
 
 function notify() {
+  saveCart(cart); // ✅ persist on every update
   listeners.forEach((l) => l());
 }
 
@@ -30,6 +53,12 @@ export function addToCart(item: CartItem) {
     cart.push({ ...item, quantity: 1 });
   }
 
+  notify();
+}
+
+// ✅ Replace entire cart (for qty/remove logic)
+export function setCart(newCart: CartItem[]) {
+  cart = newCart;
   notify();
 }
 
