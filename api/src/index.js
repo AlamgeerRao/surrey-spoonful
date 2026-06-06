@@ -4,3 +4,5 @@ import "./functions/orders.js";
 import "./functions/checkout.js";
 import "./functions/stripeWebhook.js";
 import "./functions/contact.js";
+import "./functions/slots.js";
+import "./functions/admin.js";
