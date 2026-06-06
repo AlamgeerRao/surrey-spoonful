@@ -90,7 +90,7 @@ function OrderPage() {
       {/* Delivery */}
       <section className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
         <Info label="Delivery date" value={format(new Date(order.delivery.date), "EEE, d MMM yyyy")} />
-        <Info label="Slot" value={order.delivery.slot === "lunch" ? "Lunch · 12:00–14:00" : "Dinner · 18:00–20:30"} />
+        <Info label="Slot" value={order.delivery.slot === "lunch" ? "Lunch · 11:30–14:30" : "Dinner · 16:30–19:30"} />
         <Info label="Address" value={`${order.customer.address}, ${order.customer.postcode}`} />
         <Info label="Area" value={order.customer.area} />
         {order.delivery.notes && <Info label="Notes" value={order.delivery.notes} />}

@@ -10,16 +10,16 @@ import heroFeast from "@/assets/hero-feast.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Homemade Pakistani Kitchen — Halal home food delivered in Surrey" },
+      { title: "Homemade Pakistani Food, Surrey — Halal delivery in Byfleet, Woking & Weybridge" },
       {
         name: "description",
         content:
-          "Order authentic Pakistani home cooking delivered fresh to Byfleet, West Byfleet, Woking and Weybridge. Halal. Family recipes. Same-day lunch & dinner.",
+          "Order authentic Homemade Pakistani Food delivered fresh across Surrey — Byfleet, West Byfleet, Woking and Weybridge. Halal karahi, biryani, daal & sides.",
       },
-      { property: "og:title", content: "Homemade Pakistani Kitchen — Surrey" },
+      { property: "og:title", content: "Homemade Pakistani Food — Surrey" },
       {
         property: "og:description",
-        content: "Halal Pakistani home food, delivered fresh across Surrey.",
+        content: "Halal Pakistani home cooking, delivered in Byfleet, West Byfleet, Woking and Weybridge.",
       },
       { property: "og:url", content: "/" },
     ],
@@ -91,7 +91,7 @@ function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-2 sm:px-6 md:grid-cols-4">
           <Feature icon={<ShieldCheck className="h-5 w-5" />} title="100% Halal" body="Certified meat, ethical sourcing." />
           <Feature icon={<Truck className="h-5 w-5" />} title={`${formatPrice(DELIVERY_FEE_PENCE)} delivery`} body="Across our Surrey delivery zones." />
-          <Feature icon={<Clock className="h-5 w-5" />} title="Lunch & dinner" body="Order by 10:30am for same-day." />
+          <Feature icon={<Clock className="h-5 w-5" />} title="Lunch & dinner" body="Order at least 2 hrs before your slot." />
           <Feature icon={<Leaf className="h-5 w-5" />} title="Made fresh daily" body="No shortcuts, never frozen." />
         </div>
       </section>
@@ -155,8 +155,8 @@ function HomePage() {
             </h2>
             <p className="mt-4 text-muted-foreground">
               Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
-              Order before <strong className="text-foreground">10:30am</strong> for lunch
-              the same day, or pick any date for a future delivery — your call.
+              Two slots a day — Lunch (11:30–14:30) and Dinner (16:30–19:30).
+              Place orders at least <strong className="text-foreground">2 hours</strong> before your slot.
             </p>
             <Button asChild className="mt-6 rounded-full">
               <Link to="/menu">Start an order</Link>
