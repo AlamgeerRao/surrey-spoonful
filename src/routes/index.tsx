@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, Leaf, ShieldCheck, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MealCard } from "@/components/site/meal-card";
-import { getPopular, getWeeklySpecials } from "@/lib/menu-data";
+import { getPopularDishes, getWeeklySpecials } from "@/lib/menu-data";
 import { DELIVERY_AREAS, DELIVERY_FEE_PENCE } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import heroFeast from "@/assets/hero-feast.jpg";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const popular = getPopular();
+  const popular = getPopularDishes();
   const specials = getWeeklySpecials();
 
   return (
