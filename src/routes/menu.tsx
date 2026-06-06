@@ -1,4 +1,3 @@
-import { meals } from "@/data/meals";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MealCard } from "@/components/site/meal-card";
@@ -25,8 +24,8 @@ export const Route = createFileRoute("/menu")({
 function MenuPage() {
   const [active, setActive] = useState<Category | "all">("all");
   const items = active === "all"
-  ? meals
-  : meals.filter((m) => m.category === active);
+    ? MENU
+    : MENU.filter((m) => m.category === active);
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-8">
