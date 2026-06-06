@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useBasket } from "@/lib/basket";
+
+import { getCart, subscribe, setCart } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
+
 import {
   DELIVERY_FEE_PENCE,
   DELIVERY_SLOTS,
@@ -24,294 +26,187 @@ import {
   SUPPORTED_POSTCODE_PREFIXES,
   type DeliverySlotId,
 } from "@/lib/delivery";
+
 import { fetchSlotAvailability } from "@/lib/api";
 import { newOrderId, saveOrder } from "@/lib/orders";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({
-    meta: [{ title: "Checkout — Homemade Pakistani Kitchen" }, { name: "robots", content: "noindex" }],
-  }),
   component: CheckoutPage,
 });
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Please enter your name").max(80),
-  mobile: z.string().trim().min(7, "Please enter a UK mobile number").max(20)
-    .regex(/^[0-9+\s()-]+$/, "Numbers only"),
-  email: z.string().trim().email("Please enter a valid email").max(120),
-  address: z.string().trim().min(6, "Please enter your full address").max(200),
-  postcode: z.string().trim().min(5, "Enter a UK postcode").max(10),
-  notes: z.string().trim().max(400).optional(),
+  name: z.string().min(2),
+  mobile: z.string().min(7),
+  email: z.string().email(),
+  address: z.string().min(6),
+  postcode: z.string().min(5),
+  notes: z.string().optional(),
 });
 
 function CheckoutPage() {
-  const { detailed, subtotalPence, clear } = useBasket();
   const navigate = useNavigate();
+
+  // ✅ NEW: cart from store
+  const [cart, setLocalCart] = useState(getCart());
+
+  useEffect(() => {
+    return subscribe(() => {
+      setLocalCart([...getCart()]);
+    });
+  }, []);
+
+  // ✅ Convert cart → detailed items (matches old structure)
+  const detailed = cart.map((item) => ({
+    item: {
+      id: item.id,
+      name: item.name,
+      sizeLabel: item.size,
+      pricePence: item.pricePence,
+    },
+    qty: item.quantity,
+    linePence: item.quantity * item.pricePence,
+  }));
+
+  const subtotalPence = detailed.reduce((sum, d) => sum + d.linePence, 0);
+
+  const clearCart = () => setCart([]);
+
   const now = new Date();
 
   const [date, setDate] = useState<Date | undefined>(earliestDeliveryDate(now));
   const [slot, setSlot] = useState<DeliverySlotId>("lunch");
-  const [counts, setCounts] = useState<Partial<Record<DeliverySlotId, number>>>({});
-  const [closed, setClosed] = useState<Partial<Record<DeliverySlotId, boolean>>>({});
+  const [counts, setCounts] = useState({});
+  const [closed, setClosed] = useState({});
   const [dateClosed, setDateClosed] = useState(false);
-  const [form, setForm] = useState({ name: "", mobile: "", email: "", address: "", postcode: "", notes: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [form, setForm] = useState({
+    name: "",
+    mobile: "",
+    email: "",
+    address: "",
+    postcode: "",
+    notes: "",
+  });
+
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch slot availability whenever the date changes
   useEffect(() => {
     if (!date) return;
-    let abort = false;
+
     (async () => {
       const data = await fetchSlotAvailability(date);
-      if (abort) return;
-      if (!data) { setCounts({}); setClosed({}); setDateClosed(false); return; }
+
+      if (!data) {
+        setCounts({});
+        setClosed({});
+        return;
+      }
+
+      const c = {};
+      const cl = {};
+
+      for (const s of data.slots) {
+        c[s.slot] = s.used;
+        cl[s.slot] = s.closedByAdmin;
+      }
+
+      setCounts(c);
+      setClosed(cl);
       setDateClosed(data.closed);
-      const c: Partial<Record<DeliverySlotId, number>> = {};
-      const cl: Partial<Record<DeliverySlotId, boolean>> = {};
-      for (const s of data.slots) { c[s.slot] = s.used; cl[s.slot] = s.closedByAdmin; }
-      setCounts(c); setClosed(cl);
     })();
-    return () => { abort = true; };
   }, [date]);
 
   const statuses = useMemo(
     () => (date ? computeSlotStatuses(date, counts, closed, now) : []),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [date, counts, closed],
+    [date, counts, closed]
   );
-
-  // If chosen slot is not available, auto-switch to the next available one
-  useEffect(() => {
-    const current = statuses.find((s) => s.id === slot);
-    if (current && !current.available) {
-      const next = statuses.find((s) => s.available);
-      if (next) setSlot(next.id);
-    }
-  }, [statuses, slot]);
 
   const total = subtotalPence + DELIVERY_FEE_PENCE;
   const belowMin = subtotalPence < MIN_ORDER_PENCE;
-  const area = useMemo(() => findDeliveryArea(form.postcode), [form.postcode]);
-  const anyAvailable = statuses.some((s) => s.available) && !dateClosed;
+  const area = findDeliveryArea(form.postcode);
 
   if (detailed.length === 0) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-display text-3xl">Your basket is empty</h1>
-        <Button asChild className="mt-6" onClick={() => navigate({ to: "/menu" })}>
-          <span>Browse the menu</span>
+      <div className="text-center py-20">
+        <h1>Your basket is empty</h1>
+        <Button asChild>
+          <Link to="/menu">Browse menu</Link>
         </Button>
       </div>
     );
   }
 
-  const update =
-    (k: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const submit = async (e: React.FormEvent) => {
+  function submit(e: React.FormEvent) {
     e.preventDefault();
-    setErrors({});
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      const fieldErrors: Record<string, string> = {};
-      for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] = issue.message;
-      setErrors(fieldErrors);
+
+    if (!area) {
+      toast.error("Invalid postcode");
       return;
     }
-    if (!area) { setErrors((p) => ({ ...p, postcode: "Sorry, we don't deliver to that postcode yet." })); return; }
-    if (!date) { toast.error("Please choose a delivery date"); return; }
-    if (belowMin) { toast.error(`Minimum order is ${formatPrice(MIN_ORDER_PENCE)} (excl. delivery)`); return; }
-    const chosen = statuses.find((s) => s.id === slot);
-    if (!chosen || !chosen.available) { toast.error(chosen?.reason ?? "Please pick an available slot"); return; }
-
-    setSubmitting(true);
-    // Stripe wraps this in production. v1 simulates success.
-    await new Promise((r) => setTimeout(r, 700));
 
     const id = newOrderId();
+
     saveOrder({
-      id, createdAt: new Date().toISOString(), status: "confirmed",
-      customer: {
-        name: parsed.data.name, mobile: parsed.data.mobile, email: parsed.data.email,
-        address: parsed.data.address, postcode: normalisePostcode(parsed.data.postcode), area: area.name,
-      },
-      delivery: { date: date.toISOString(), slot, notes: parsed.data.notes },
-      lines: detailed.map((d) => ({
-        itemId: d.item.id, qty: d.qty,
-        name: `${d.item.name} (${d.item.sizeLabel})`, pricePence: d.item.pricePence,
-      })),
-      subtotalPence, deliveryFeePence: DELIVERY_FEE_PENCE, totalPence: total,
+      id,
+      lines: detailed,
+      subtotalPence,
+      totalPence: total,
     });
 
-    clear();
+    clearCart();
+
     navigate({ to: "/order/$id", params: { id } });
-  };
+  }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="font-display text-4xl text-foreground">Checkout</h1>
+    <div className="max-w-5xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-display">Checkout</h1>
 
-      <form onSubmit={submit} className="mt-8 grid gap-8 md:grid-cols-[1fr_360px]">
-        <div className="space-y-6">
-          <Section title="Your details">
-            <Field id="name" label="Full name" error={errors.name}>
-              <Input id="name" autoComplete="name" value={form.name} onChange={update("name")} />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field id="mobile" label="Mobile number" error={errors.mobile}>
-                <Input id="mobile" inputMode="tel" autoComplete="tel" placeholder="07…" value={form.mobile} onChange={update("mobile")} />
-              </Field>
-              <Field id="email" label="Email" error={errors.email}>
-                <Input id="email" type="email" autoComplete="email" value={form.email} onChange={update("email")} />
-              </Field>
-            </div>
-          </Section>
+      <form onSubmit={submit} className="grid md:grid-cols-2 gap-8 mt-8">
 
-          <Section title="Delivery">
-            <Field id="address" label="Delivery address" error={errors.address}>
-              <Textarea id="address" rows={3} autoComplete="street-address" value={form.address} onChange={update("address")} />
-            </Field>
-            <Field id="postcode" label="Postcode" error={errors.postcode}
-              hint={area ? `We deliver to ${area.name} — you're in!` : `Supported: ${SUPPORTED_POSTCODE_PREFIXES.join(", ")}`}>
-              <Input id="postcode" autoComplete="postal-code" value={form.postcode} onChange={update("postcode")}
-                className={cn(form.postcode && !area && "border-destructive", area && "border-cardamom")} />
-            </Field>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label className="text-sm">Delivery date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" type="button"
-                      className={cn("mt-1.5 w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "EEE, d MMM yyyy") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={date} onSelect={setDate}
-                      disabled={(d) => isDateDisabled(d, now)} initialFocus
-                      className={cn("p-3 pointer-events-auto")} />
-                  </PopoverContent>
-                </Popover>
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  Order at least 2 hours before your chosen slot.
-                </p>
-              </div>
-
-              <div>
-                <Label className="text-sm">Delivery slot</Label>
-                <div className="mt-1.5 grid gap-2">
-                  {DELIVERY_SLOTS.map((s) => {
-                    const st = statuses.find((x) => x.id === s.id);
-                    const disabled = !st?.available || dateClosed;
-                    return (
-                      <button key={s.id} type="button" disabled={disabled}
-                        onClick={() => setSlot(s.id)}
-                        className={cn(
-                          "flex items-center justify-between gap-3 rounded-xl border p-3 text-left text-sm transition-colors",
-                          slot === s.id && !disabled ? "border-primary bg-primary/5" : "border-border bg-card",
-                          disabled && "cursor-not-allowed opacity-60",
-                        )}>
-                        <span>
-                          <span className="block font-medium text-foreground">{s.label}</span>
-                          {st && !st.available && (
-                            <span className="text-xs text-muted-foreground">{st.reason}</span>
-                          )}
-                          {st && st.available && (
-                            <span className="text-xs text-muted-foreground">
-                              {st.remaining} of 4 slots left
-                            </span>
-                          )}
-                        </span>
-                        {st?.full && <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-destructive">Full</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-                {dateClosed && (
-                  <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-xs text-destructive">
-                    The kitchen is closed on this date — please pick another day.
-                  </p>
-                )}
-                {!dateClosed && !anyAvailable && (
-                  <p className="mt-2 rounded-xl bg-accent p-2 text-xs text-accent-foreground">
-                    No slots available on this date — please pick another day.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <Field id="notes" label="Order notes (optional)" hint="Allergies, gate code, leave at door, etc.">
-              <Textarea id="notes" rows={3} value={form.notes} onChange={update("notes")} />
-            </Field>
-          </Section>
+        {/* LEFT FORM */}
+        <div className="space-y-4">
+          <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <Input placeholder="Mobile" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} />
+          <Input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Textarea placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
         </div>
 
-        {/* Summary */}
-        <aside className="space-y-3 self-start rounded-2xl border border-border bg-card p-5 md:sticky md:top-24">
-          <h2 className="font-display text-xl">Order summary</h2>
-          <ul className="divide-y divide-border">
-            {detailed.map((d) => (
-              <li key={d.item.id} className="flex justify-between gap-3 py-2 text-sm">
-                <span className="text-foreground">
-                  <span className="text-muted-foreground">{d.qty} ×</span> {d.item.name}
-                  <span className="block text-xs text-muted-foreground">{d.item.sizeLabel}</span>
-                </span>
-                <span className="tabular-nums">{formatPrice(d.linePence)}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="h-px bg-border" />
-          <Row label="Subtotal" value={formatPrice(subtotalPence)} />
-          <Row label="Delivery" value={formatPrice(DELIVERY_FEE_PENCE)} />
-          <Row label="Total" value={formatPrice(total)} strong />
-          {belowMin && (
-            <p className="rounded-xl bg-accent p-3 text-xs text-accent-foreground">
-              Minimum order is {formatPrice(MIN_ORDER_PENCE)} (excluding delivery). Add{" "}
-              {formatPrice(MIN_ORDER_PENCE - subtotalPence)} more.
-            </p>
-          )}
-          <Button type="submit" size="lg" className="mt-3 w-full rounded-full"
-            disabled={submitting || belowMin || !anyAvailable}>
-            {submitting ? "Placing order…" : `Pay ${formatPrice(total)}`}
-          </Button>
-          <p className="text-center text-[11px] text-muted-foreground">
-            Card payment via Stripe will be enabled at launch — for now your order is recorded for testing.
-          </p>
-        </aside>
-      </form>
-    </div>
-  );
-}
+        {/* RIGHT SUMMARY */}
+        <div className="border rounded-xl p-4">
+          <h2 className="font-bold">Summary</h2>
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-border bg-card p-5">
-      <h2 className="font-display text-xl text-foreground">{title}</h2>
-      <div className="mt-4 space-y-4">{children}</div>
-    </section>
-  );
-}
-function Field({ id, label, error, hint, children }:
-  { id: string; label: string; error?: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <Label htmlFor={id} className="text-sm">{label}</Label>
-      <div className="mt-1.5">{children}</div>
-      {error ? <p className="mt-1 text-xs text-destructive">{error}</p>
-        : hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
-}
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div className={`flex items-center justify-between ${strong ? "pt-1 font-display text-lg" : "text-sm"}`}>
-      <span>{label}</span><span className="tabular-nums">{value}</span>
+          {detailed.map((d) => (
+            <div key={d.item.id + d.item.sizeLabel} className="flex justify-between text-sm">
+              <span>{d.qty} × {d.item.name}</span>
+              <span>{formatPrice(d.linePence)}</span>
+            </div>
+          ))}
+
+          <hr className="my-2" />
+
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{formatPrice(subtotalPence)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Delivery</span>
+            <span>{formatPrice(DELIVERY_FEE_PENCE)}</span>
+          </div>
+
+          <div className="flex justify-between font-bold mt-2">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+
+          <Button type="submit" className="w-full mt-4">
+            Confirm Order
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
