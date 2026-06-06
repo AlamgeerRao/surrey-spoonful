@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { MENU } from "@/lib/menu-data";
+import { DISHES } from "@/lib/menu-data";
 
 const BASE_URL = "";
 
@@ -22,8 +22,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/faq", changefreq: "monthly", priority: "0.5" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
-          ...MENU.map((m) => ({
-            path: `/menu/${m.slug}`,
+          ...DISHES.map((d) => ({
+            path: `/menu/${d.slug}`,
             changefreq: "weekly" as const,
             priority: "0.7",
           })),

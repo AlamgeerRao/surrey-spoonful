@@ -1,11 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, Leaf } from "lucide-react";
+import { ArrowRight, Flame, Leaf } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useBasket } from "@/lib/basket";
 import { formatPrice } from "@/lib/format";
-import type { MenuItem } from "@/lib/menu-data";
-import { toast } from "sonner";
+import { priceFromPence, type Dish, type MenuItem } from "@/lib/menu-data";
 
 function Spice({ level }: { level: number }) {
   if (level === 0) {
@@ -28,33 +26,38 @@ function Spice({ level }: { level: number }) {
   );
 }
 
-export function MealCard({ item }: { item: MenuItem }) {
-  const { add } = useBasket();
+// Accept either a Dish (preferred) or a MenuItem (legacy callers). When a
+// MenuItem is passed we render its single price; for a Dish we render
+// "from £X" because the user must pick a size on the detail page.
+type Props = { item: Dish | MenuItem };
+
+function isDish(x: Dish | MenuItem): x is Dish {
+  return Array.isArray((x as Dish).sizes);
+}
+
+export function MealCard({ item }: Props) {
+  const dish = item;
+  const fromPence = isDish(dish) ? priceFromPence(dish) : (dish as MenuItem).pricePence;
+  const sizesCount = isDish(dish) ? dish.sizes.length : 1;
+
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
-      <Link to="/menu/$slug" params={{ slug: item.slug }} className="relative block aspect-[4/3] overflow-hidden">
+      <Link to="/menu/$slug" params={{ slug: dish.slug }} className="relative block aspect-[4/3] overflow-hidden">
         <img
-          src={item.image}
-          alt={item.name}
+          src={dish.image}
+          alt={dish.name}
           loading="lazy"
           width={800}
           height={600}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          {item.popular && (
-            <Badge className="bg-primary text-primary-foreground">Popular</Badge>
+          {dish.popular && <Badge className="bg-primary text-primary-foreground">Popular</Badge>}
+          {dish.weeklySpecial && (
+            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">This week</Badge>
           )}
-          {item.weeklySpecial && (
-            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
-              This week
-            </Badge>
-          )}
-          {item.halal && (
-            <Badge
-              variant="outline"
-              className="border-transparent bg-white/85 text-foreground backdrop-blur"
-            >
+          {dish.halal && (
+            <Badge variant="outline" className="border-transparent bg-white/85 text-foreground backdrop-blur">
               Halal
             </Badge>
           )}
@@ -62,31 +65,22 @@ export function MealCard({ item }: { item: MenuItem }) {
       </Link>
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
-          <Link to="/menu/$slug" params={{ slug: item.slug }}>
-            <h3 className="font-display text-lg text-foreground hover:text-primary">
-              {item.name}
-            </h3>
+          <Link to="/menu/$slug" params={{ slug: dish.slug }}>
+            <h3 className="font-display text-lg text-foreground hover:text-primary">{dish.name}</h3>
           </Link>
           <div className="text-right">
             <div className="font-display text-lg text-foreground">
-              {formatPrice(item.pricePence)}
+              {sizesCount > 1 ? `from ${formatPrice(fromPence)}` : formatPrice(fromPence)}
             </div>
           </div>
         </div>
-        <p className="line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
+        <p className="line-clamp-2 text-sm text-muted-foreground">{dish.description}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center gap-3">
-            <Spice level={item.spice} />
-            <span className="text-xs text-muted-foreground">{item.portion}</span>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              add(item.id);
-              toast.success(`Added ${item.name} to basket`);
-            }}
-          >
-            Add
+          <Spice level={dish.spice} />
+          <Button asChild size="sm">
+            <Link to="/menu/$slug" params={{ slug: dish.slug }}>
+              Choose size <ArrowRight className="ml-1 h-3.5 w-3.5" />
+            </Link>
           </Button>
         </div>
       </div>

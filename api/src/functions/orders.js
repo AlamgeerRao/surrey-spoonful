@@ -1,7 +1,13 @@
 import { app } from "@azure/functions";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { getCosmos } from "../shared/cosmos.js";
+import {
+  getCosmos,
+  reserveSlot,
+  isBeforeCutoff,
+} from "../shared/cosmos.js";
+
+const MIN_ORDER_PENCE = 1000; // £10 excl delivery — must match frontend
 
 const OrderSchema = z.object({
   customer: z.object({
@@ -12,17 +18,14 @@ const OrderSchema = z.object({
     address: z.string().min(3).max(300),
     notes: z.string().max(500).optional(),
   }),
-  items: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        pricePence: z.number().int().positive(),
-        qty: z.number().int().min(1).max(20),
-      }),
-    )
-    .min(1),
-  deliveryDate: z.string(),
+  items: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    pricePence: z.number().int().positive(),
+    qty: z.number().int().min(1).max(20),
+  })).min(1),
+  deliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD"),
+  deliverySlot: z.enum(["lunch", "dinner"]),
   totalPence: z.number().int().positive(),
 });
 
@@ -34,6 +37,25 @@ app.http("createOrder", {
     try {
       const body = await req.json();
       const parsed = OrderSchema.parse(body);
+
+      // 1) Minimum order (excl delivery)
+      const subtotal = parsed.items.reduce((s, i) => s + i.pricePence * i.qty, 0);
+      if (subtotal < MIN_ORDER_PENCE) {
+        return { status: 400, jsonBody: { error: `Minimum order is £${(MIN_ORDER_PENCE / 100).toFixed(2)} excluding delivery.` } };
+      }
+
+      // 2) 2-hour cutoff
+      if (!isBeforeCutoff(parsed.deliveryDate, parsed.deliverySlot)) {
+        return { status: 400, jsonBody: { error: "Orders must be placed at least 2 hours before the slot start time." } };
+      }
+
+      // 3) Slot capacity (reserves +1 if room)
+      try {
+        await reserveSlot(parsed.deliveryDate, parsed.deliverySlot);
+      } catch (e) {
+        return { status: 409, jsonBody: { error: e.message || "Slot unavailable" } };
+      }
+
       const { orders } = getCosmos();
       const id = randomUUID();
       const order = {
