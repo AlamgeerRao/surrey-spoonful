@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useBasket } from "@/lib/basket";
 import { formatPrice } from "@/lib/format";
-import { getDish } from "@/lib/menu-data";
+import { getDish, type Dish } from "@/lib/menu-data";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/menu/$slug")({
-  loader: ({ params }) => {
+  loader: ({ params }): { dish: Dish } => {
     const dish = getDish(params.slug);
     if (!dish) throw notFound();
     return { dish };

@@ -16,6 +16,7 @@ function BasketPage() {
   const { detailed, setQty, remove, subtotalPence } = useBasket();
   const belowMin = subtotalPence > 0 && subtotalPence < MIN_ORDER_PENCE;
   const total = subtotalPence + (subtotalPence > 0 ? DELIVERY_FEE_PENCE : 0);
+  // Minimum is excl. delivery — message reflects that.
 
   if (detailed.length === 0) {
     return (
@@ -48,7 +49,7 @@ function BasketPage() {
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="text-xs text-muted-foreground">{item.portion}</div>
+              <div className="text-xs text-muted-foreground">{item.sizeLabel}</div>
               <div className="mt-2 flex items-center justify-between">
                 <div className="inline-flex items-center rounded-full border border-border bg-background">
                   <Button variant="ghost" size="icon" aria-label="Decrease" onClick={() => setQty(item.id, qty - 1)}>
@@ -75,7 +76,7 @@ function BasketPage() {
         {belowMin && (
           <p className="mt-4 rounded-xl bg-accent p-3 text-sm text-accent-foreground">
             Add {formatPrice(MIN_ORDER_PENCE - subtotalPence)} more to reach our £
-            {(MIN_ORDER_PENCE / 100).toFixed(0)} minimum order.
+            {(MIN_ORDER_PENCE / 100).toFixed(0)} minimum (excl. delivery).
           </p>
         )}
 
