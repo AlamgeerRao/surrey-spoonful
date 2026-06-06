@@ -6,7 +6,7 @@ import { getPopularDishes, getWeeklySpecials } from "@/lib/menu-data";
 import { DELIVERY_AREAS, DELIVERY_FEE_PENCE } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import heroFeast from "@/assets/hero-feast.jpg";
-
+//test comment
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
