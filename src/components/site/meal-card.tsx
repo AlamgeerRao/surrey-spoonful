@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
+import { addToCart } from "@/lib/cart-store";
 import { priceFromPence, type Dish, type MenuItem } from "@/lib/menu-data";
 
 function Spice({ level }: { level: number }) {
