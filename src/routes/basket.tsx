@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { DELIVERY_FEE_PENCE, MIN_ORDER_PENCE } from "@/lib/delivery";
-import { getCart, subscribe, addToCart } from "@/lib/cart-store";
+import { getCart, subscribe, addToCart, setCart } from "@/lib/cart-store";
 
 export const Route = createFileRoute("/basket")({
   head: () => ({
@@ -17,11 +17,11 @@ export const Route = createFileRoute("/basket")({
 });
 
 function BasketPage() {
-  const [cart, setCart] = useState(getCart());
+  const [cart, setLocalCart] = useState(getCart());
 
   useEffect(() => {
     const unsubscribe = subscribe(() => {
-      setCart([...getCart()]);
+      setLocalCart([...getCart()]);
     });
     return unsubscribe;
   }, []);
@@ -38,7 +38,7 @@ function BasketPage() {
     subtotalPence +
     (subtotalPence > 0 ? DELIVERY_FEE_PENCE : 0);
 
-  // helpers
+  // ✅ increase quantity
   function increase(item: any) {
     addToCart({
       ...item,
@@ -46,24 +46,30 @@ function BasketPage() {
     });
   }
 
+  // ✅ decrease quantity
   function decrease(item: any) {
-    const updated = cart.map((c) => {
-      if (c.id === item.id && c.size === item.size) {
-        return { ...c, quantity: c.quantity - 1 };
-      }
-      return c;
-    }).filter((c) => c.quantity > 0);
+    const updated = cart
+      .map((c) => {
+        if (c.id === item.id && c.size === item.size) {
+          return { ...c, quantity: c.quantity - 1 };
+        }
+        return c;
+      })
+      .filter((c) => c.quantity > 0);
 
-    setCart(updated);
+    setCart(updated); // persists ✅
   }
 
+  // ✅ remove item
   function removeItem(item: any) {
     const updated = cart.filter(
       (c) => !(c.id === item.id && c.size === item.size)
     );
-    setCart(updated);
+
+    setCart(updated); // persists ✅
   }
 
+  // ✅ empty basket UI
   if (cart.length === 0) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
@@ -73,6 +79,7 @@ function BasketPage() {
         <p className="mt-3 text-muted-foreground">
           Time to put something delicious in it.
         </p>
+
         <Button asChild className="mt-6 rounded-full">
           <Link to="/menu">Browse menu</Link>
         </Button>
@@ -86,6 +93,7 @@ function BasketPage() {
         Your basket
       </h1>
 
+      {/* ✅ CART ITEMS */}
       <ul className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
         {cart.map((item) => (
           <li
@@ -93,6 +101,8 @@ function BasketPage() {
             className="flex items-center gap-3 p-4 sm:gap-4"
           >
             <div className="min-w-0 flex-1">
+              
+              {/* NAME + REMOVE */}
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-display text-lg text-foreground">
                   {item.name}
@@ -106,12 +116,15 @@ function BasketPage() {
                 </button>
               </div>
 
+              {/* SIZE */}
               <div className="text-xs text-muted-foreground">
                 {item.size}
               </div>
 
+              {/* QUANTITY + PRICE */}
               <div className="mt-2 flex items-center justify-between">
                 <div className="inline-flex items-center rounded-full border border-border bg-background">
+                  
                   <Button
                     variant="ghost"
                     size="icon"
@@ -142,6 +155,7 @@ function BasketPage() {
         ))}
       </ul>
 
+      {/* ✅ TOTAL SECTION */}
       <div className="mt-6 rounded-2xl border border-border bg-card p-5">
         <Row label="Subtotal" value={formatPrice(subtotalPence)} />
         <Row label="Delivery" value={formatPrice(DELIVERY_FEE_PENCE)} />
@@ -152,9 +166,8 @@ function BasketPage() {
 
         {belowMin && (
           <p className="mt-4 rounded-xl bg-accent p-3 text-sm text-accent-foreground">
-            Add {formatPrice(MIN_ORDER_PENCE - subtotalPence)} more
-            to reach our £{(MIN_ORDER_PENCE / 100).toFixed(0)} minimum
-            (excl. delivery).
+            Add {formatPrice(MIN_ORDER_PENCE - subtotalPence)} more to reach our £
+            {(MIN_ORDER_PENCE / 100).toFixed(0)} minimum (excl. delivery).
           </p>
         )}
 
