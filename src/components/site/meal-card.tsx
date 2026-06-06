@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Flame, Leaf } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
@@ -26,9 +27,6 @@ function Spice({ level }: { level: number }) {
   );
 }
 
-// Accept either a Dish (preferred) or a MenuItem (legacy callers). When a
-// MenuItem is passed we render its single price; for a Dish we render
-// "from £X" because the user must pick a size on the detail page.
 type Props = { item: Dish | MenuItem };
 
 function isDish(x: Dish | MenuItem): x is Dish {
@@ -38,10 +36,15 @@ function isDish(x: Dish | MenuItem): x is Dish {
 export function MealCard({ item }: Props) {
   const dish = item;
   const fromPence = isDish(dish) ? priceFromPence(dish) : (dish as MenuItem).pricePence;
-  const sizesCount = isDish(dish) ? dish.sizes.length : 1;
+  const sizes = isDish(dish) ? dish.sizes : [];
+  const hasMultipleSizes = sizes.length > 0;
+
+  const [selectedSize, setSelectedSize] = useState("");
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
+
+      {/* IMAGE */}
       <Link to="/menu/$slug" params={{ slug: dish.slug }} className="relative block aspect-[4/3] overflow-hidden">
         <img
           src={dish.image}
@@ -63,25 +66,61 @@ export function MealCard({ item }: Props) {
           )}
         </div>
       </Link>
+
+      {/* CONTENT */}
       <div className="flex flex-1 flex-col gap-3 p-4">
+
+        {/* TITLE + PRICE */}
         <div className="flex items-start justify-between gap-2">
           <Link to="/menu/$slug" params={{ slug: dish.slug }}>
             <h3 className="font-display text-lg text-foreground hover:text-primary">{dish.name}</h3>
           </Link>
           <div className="text-right">
             <div className="font-display text-lg text-foreground">
-              {sizesCount > 1 ? `from ${formatPrice(fromPence)}` : formatPrice(fromPence)}
+              {hasMultipleSizes ? `from ${formatPrice(fromPence)}` : formatPrice(fromPence)}
             </div>
           </div>
         </div>
+
         <p className="line-clamp-2 text-sm text-muted-foreground">{dish.description}</p>
+
+        {/* SIZE SELECTOR */}
+        {hasMultipleSizes && (
+          <div className="mt-2">
+            <select
+              className="w-full rounded border p-2 text-sm"
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.target.value)}
+            >
+              <option value="">Select size</option>
+              {sizes.map((s: any) => (
+                <option key={s.label} value={s.label}>
+                  {s.label} - £{(s.pricePence / 100).toFixed(2)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* FOOTER */}
         <div className="mt-auto flex items-center justify-between pt-2">
           <Spice level={dish.spice} />
-          <Button asChild size="sm">
-            <Link to="/menu/$slug" params={{ slug: dish.slug }}>
-              Choose size <ArrowRight className="ml-1 h-3.5 w-3.5" />
-            </Link>
-          </Button>
+
+          {hasMultipleSizes ? (
+            <Button
+              size="sm"
+              disabled={!selectedSize}
+              onClick={() => {
+                console.log("ADD TO CART:", dish.name, selectedSize);
+              }}
+            >
+              Add
+            </Button>
+          ) : (
+            <Button size="sm">
+              Add
+            </Button>
+          )}
         </div>
       </div>
     </article>
