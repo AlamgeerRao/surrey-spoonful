@@ -84,7 +84,7 @@ export const MENU: MenuItem[] = DISHES.flatMap((d) =>
 ========================================================= */
 
 const API_URL =
-  "https://YOUR-FUNCTION-APP.azurewebsites.net/api/menu";
+  "https://javfoodapp001.azurewebsites.net/api/menu";
 
 // ✅ Fetch from API with fallback
 export async function getMenu(): Promise<MenuItem[]> {
