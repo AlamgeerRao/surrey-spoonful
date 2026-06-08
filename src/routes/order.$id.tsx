@@ -18,35 +18,80 @@ const STAGES = [
   { id: "DELIVERED", label: "Delivered" },
 ];
 
+function mapStatus(status: string) {
+  // ✅ map backend -> UI
+  if (status === "RECORDED") return "CONFIRMED";
+  return status;
+}
+
 function OrderPage() {
   const { id } = Route.useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch live order
+  // ✅ Fetch with retry
   useEffect(() => {
     let active = true;
 
-    (async () => {
+    async function loadOrder(retries = 3) {
       try {
         const res = await fetch(`${API}/orders/${id}`);
 
-        if (!res.ok) throw new Error("Failed to load order");
+        if (res.ok) {
+          const data = await res.json();
 
-        const data = await res.json();
+          // ✅ map status
+          data.status = mapStatus(data.status);
 
-        if (active) setOrder(data);
+          if (active) {
+            setOrder(data);
+            setLoading(false);
+          }
+          return;
+        }
       } catch (err) {
         console.error(err);
-      } finally {
+      }
+
+      // retry (handles Cosmos delay)
+      if (retries > 0) {
+        setTimeout(() => loadOrder(retries - 1), 1000);
+      } else {
         if (active) setLoading(false);
       }
-    })();
+    }
+
+    loadOrder();
 
     return () => {
       active = false;
     };
   }, [id]);
+
+  // ✅ Auto refresh every 10s (live status)
+  useEffect(() => {
+    if (!order) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API}/orders/${id}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+        data.status = mapStatus(data.status);
+
+        setOrder((prev: any) => {
+          if (!prev) return data;
+          if (prev.status !== data.status) {
+            return data;
+          }
+          return prev;
+        });
+      } catch {}
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [order, id]);
 
   if (loading) {
     return (
@@ -59,7 +104,7 @@ function OrderPage() {
   if (!order) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-display text-3xl">Order not found</h1>
+        <h1 className="text-3xl font-display">Order not found</h1>
         <Button asChild className="mt-6">
           <Link to="/">Go home</Link>
         </Button>
@@ -110,7 +155,13 @@ function OrderPage() {
                   {done ? <Check size={14} /> : <CircleDot size={14} />}
                 </span>
 
-                <span>{s.label}</span>
+                <span
+                  className={
+                    done ? "text-foreground" : "text-muted-foreground"
+                  }
+                >
+                  {s.label}
+                </span>
               </li>
             );
           })}
