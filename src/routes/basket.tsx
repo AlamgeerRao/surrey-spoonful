@@ -106,7 +106,7 @@ function BasketPage() {
         </p>
 
         <Button asChild className="mt-6 rounded-full">
-          <Link to="/menu">Browse menu</Link>
+          <Link to="/">Browse menu</Link>
         </Button>
       </div>
     );
