@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-import { getCart, subscribe, setCart } from "@/lib/cart-store";
+import { getCart, subscribe } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
 
 import {
@@ -25,7 +25,6 @@ import {
   type DeliverySlotId,
 } from "@/lib/delivery";
 
-import { saveOrder } from "@/lib/orders";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
@@ -33,6 +32,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 const API_BASE = "https://javfoodapp001.azurewebsites.net/api";
+const PENDING_ORDER_KEY = "hpk_pending_order";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Please enter your name"),
@@ -57,9 +57,6 @@ type SlotResponse = {
 };
 
 function CheckoutPage() {
-  const navigate = useNavigate();
-
-  // cart
   const [cart, setLocalCart] = useState(getCart());
 
   useEffect(() => {
@@ -83,9 +80,6 @@ function CheckoutPage() {
   const total = subtotalPence + DELIVERY_FEE_PENCE;
   const belowMin = subtotalPence < MIN_ORDER_PENCE;
 
-  const clearCart = () => setCart([]);
-
-  // form
   const now = new Date();
   const [date, setDate] = useState<Date | undefined>(earliestDeliveryDate(now));
   const [slot, setSlot] = useState<DeliverySlotId>("lunch");
@@ -106,7 +100,13 @@ function CheckoutPage() {
 
   const area = useMemo(() => findDeliveryArea(form.postcode), [form.postcode]);
 
-  // fetch slots live from API
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("cancelled") === "1") {
+      toast.error("Payment was cancelled");
+    }
+  }, []);
+
   useEffect(() => {
     if (!date) return;
 
@@ -116,6 +116,7 @@ function CheckoutPage() {
     (async () => {
       try {
         setSlotLoading(true);
+
         const res = await fetch(`${API_BASE}/slots?date=${dateStr}`);
 
         if (!res.ok) {
@@ -149,7 +150,7 @@ function CheckoutPage() {
     return () => {
       active = false;
     };
-  }, [date]);
+  }, [date, slot]);
 
   if (detailed.length === 0) {
     return (
@@ -188,7 +189,9 @@ function CheckoutPage() {
     }
 
     if (belowMin) {
-      toast.error(`Minimum order is ${formatPrice(MIN_ORDER_PENCE)} excluding delivery`);
+      toast.error(
+        `Minimum order is ${formatPrice(MIN_ORDER_PENCE)} excluding delivery`
+      );
       return;
     }
 
@@ -225,7 +228,7 @@ function CheckoutPage() {
     try {
       setSubmitting(true);
 
-      const res = await fetch(`${API_BASE}/orders`, {
+      const res = await fetch(`${API_BASE}/create-checkout-session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -235,47 +238,18 @@ function CheckoutPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to place order");
+      if (!res.ok || !data?.url) {
+        throw new Error(data?.error || "Failed to create checkout session");
       }
 
-      const orderRef = data.orderRef;
+      // store pending order for success page
+      localStorage.setItem(PENDING_ORDER_KEY, JSON.stringify(payload));
 
-      // keep a local confirmation copy for your existing order page
-      saveOrder({
-        id: orderRef,
-        createdAt: new Date().toISOString(),
-        status: "confirmed",
-        customer: {
-          name: parsed.data.name,
-          mobile: parsed.data.mobile,
-          email: parsed.data.email,
-          address: parsed.data.address,
-          postcode: normalisePostcode(parsed.data.postcode),
-          area: area.name,
-        },
-        delivery: {
-          date: format(date, "yyyy-MM-dd"),
-          slot,
-          notes: parsed.data.notes || "",
-        },
-        lines: detailed.map((d) => ({
-          itemId: d.item.id,
-          qty: d.qty,
-          name: `${d.item.name} (${d.item.sizeLabel})`,
-          pricePence: d.item.pricePence,
-        })),
-        subtotalPence,
-        deliveryFeePence: DELIVERY_FEE_PENCE,
-        totalPence: total,
-      });
-
-      clearCart();
-      toast.success("Order placed successfully");
-      navigate({ to: "/order/$id", params: { id: orderRef } });
+      // redirect to Stripe Checkout
+      window.location.href = data.url;
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Failed to place order");
+      toast.error(err.message || "Failed to start payment");
     } finally {
       setSubmitting(false);
     }
@@ -298,7 +272,9 @@ function CheckoutPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
-              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div>
@@ -308,7 +284,9 @@ function CheckoutPage() {
                 value={form.mobile}
                 onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               />
-              {errors.mobile && <p className="text-xs text-red-500 mt-1">{errors.mobile}</p>}
+              {errors.mobile && (
+                <p className="text-xs text-red-500 mt-1">{errors.mobile}</p>
+              )}
             </div>
 
             <div>
@@ -318,7 +296,9 @@ function CheckoutPage() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
-              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -328,7 +308,9 @@ function CheckoutPage() {
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
-              {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+              {errors.address && (
+                <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+              )}
             </div>
 
             <div>
@@ -342,7 +324,9 @@ function CheckoutPage() {
                   area && "border-green-600"
                 )}
               />
-              {errors.postcode && <p className="text-xs text-red-500 mt-1">{errors.postcode}</p>}
+              {errors.postcode && (
+                <p className="text-xs text-red-500 mt-1">{errors.postcode}</p>
+              )}
               {!errors.postcode && (
                 <p className="text-xs text-muted-foreground mt-1">
                   {area
@@ -398,7 +382,9 @@ function CheckoutPage() {
               <Label>Delivery slot</Label>
 
               {slotLoading ? (
-                <p className="text-sm text-muted-foreground mt-2">Loading slots...</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Loading slots...
+                </p>
               ) : slotData ? (
                 <div className="mt-2 grid gap-2">
                   {slotData.slots.map((s) => {
@@ -443,7 +429,9 @@ function CheckoutPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-red-500 mt-2">Could not load slots</p>
+                <p className="text-sm text-red-500 mt-2">
+                  Could not load slots
+                </p>
               )}
             </div>
           </div>
@@ -454,10 +442,15 @@ function CheckoutPage() {
           <h2 className="font-bold">Summary</h2>
 
           {detailed.map((d) => (
-            <div key={d.item.id + d.item.sizeLabel} className="flex justify-between text-sm py-1">
+            <div
+              key={d.item.id + d.item.sizeLabel}
+              className="flex justify-between text-sm py-1"
+            >
               <span>
                 {d.qty} × {d.item.name}
-                <span className="block text-xs text-muted-foreground">{d.item.sizeLabel}</span>
+                <span className="block text-xs text-muted-foreground">
+                  {d.item.sizeLabel}
+                </span>
               </span>
               <span>{formatPrice(d.linePence)}</span>
             </div>
@@ -482,7 +475,8 @@ function CheckoutPage() {
 
           {belowMin && (
             <p className="mt-3 rounded-xl bg-amber-100 p-3 text-xs text-amber-900">
-              Minimum order is {formatPrice(MIN_ORDER_PENCE)} excluding delivery.
+              Minimum order is {formatPrice(MIN_ORDER_PENCE)} excluding
+              delivery.
             </p>
           )}
 
@@ -491,7 +485,7 @@ function CheckoutPage() {
             className="w-full mt-4"
             disabled={submitting || belowMin}
           >
-            {submitting ? "Placing order..." : "Confirm Order"}
+            {submitting ? "Redirecting to payment..." : "Pay securely with Stripe"}
           </Button>
         </div>
       </form>
