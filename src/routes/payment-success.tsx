@@ -78,10 +78,14 @@ function PaymentSuccessPage() {
           toast.success("Payment successful ✅");
 
           // ✅ Redirect to order page
-          navigate({
-            to: "/order/$id",
-            params: { id: orderRef },
-          });
+         setMessage("Order confirmed ✅ Redirecting...");
+
+setTimeout(() => {
+  navigate({
+    to: "/order/$id",
+    params: { id: orderRef },
+  });
+}, 1500);
         }
       } catch (err: any) {
         console.error(err);
