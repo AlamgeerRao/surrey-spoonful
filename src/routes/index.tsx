@@ -211,8 +211,7 @@ useEffect(() => {
               <Link to="/about">Our story</Link>
             </Button>
           </div>
-        </div>
-     
+           
       {/* DELIVERY DATE PICKER */}
       <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
