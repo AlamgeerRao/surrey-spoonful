@@ -170,7 +170,7 @@ function CheckoutPage() {
       <div className="text-center py-20">
         <h1 className="text-2xl font-display">Your basket is empty</h1>
         <Button asChild className="mt-4">
-          <Link to="/menu">Browse menu</Link>
+          <Link to="/">Browse menu</Link>
         </Button>
       </div>
     );
@@ -190,7 +190,7 @@ function CheckoutPage() {
             <Link to="/">Choose delivery date</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/menu">Back to menu</Link>
+            <Link to="/">Back to menu</Link>
           </Button>
         </div>
       </div>
