@@ -174,12 +174,6 @@ function HomePage() {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="rounded-full px-6">
-              <Link to="/menu">
-                View full menu <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-
             <Button
               asChild
               size="lg"
