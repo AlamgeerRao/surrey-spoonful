@@ -1,4 +1,5 @@
-import { Flame, Leaf } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, Flame, Leaf } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ function Spice({ level }: { level: number }) {
       </span>
     );
   }
-
   return (
     <span
       className="inline-flex items-center gap-0.5 text-xs"
@@ -53,8 +53,12 @@ export function MealCard({ item }: Props) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
-      {/* IMAGE */}
-      <div className="relative block aspect-[4/3] overflow-hidden">
+      {/* ✅ IMAGE → SAFE LINK */}
+      <Link
+        to="/menu/$slug"
+        params={{ slug: dish.slug }}
+        className="relative block aspect-[4/3] overflow-hidden"
+      >
         <img
           src={dish.image}
           alt={dish.name}
@@ -89,17 +93,17 @@ export function MealCard({ item }: Props) {
             </Badge>
           )}
         </div>
-      </div>
+      </Link>
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-        {/* TITLE + PRICE */}
+        {/* ✅ TITLE + PRICE */}
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-display text-lg text-foreground">
+          <Link to="/menu/$slug" params={{ slug: dish.slug }}>
+            <h3 className="font-display text-lg text-foreground hover:text-primary">
               {dish.name}
             </h3>
-          </div>
+          </Link>
 
           <div className="text-right">
             <div className="font-display text-lg text-foreground">
@@ -156,8 +160,6 @@ export function MealCard({ item }: Props) {
                   pricePence: selected.pricePence,
                   quantity: 1,
                 });
-
-                console.log("ADDED:", dish.name, selected.label);
               }}
             >
               Add
@@ -173,8 +175,6 @@ export function MealCard({ item }: Props) {
                   pricePence: fromPence || 0,
                   quantity: 1,
                 });
-
-                console.log("ADDED:", dish.name);
               }}
             >
               Add
