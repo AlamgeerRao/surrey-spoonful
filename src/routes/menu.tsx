@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import menuData from "@/data/menu.json";
 
 export const Route = createFileRoute("/menu")({
+  staticData: {
+    prerender: false, // ✅ FIX GitHub error
+  },
   head: () => ({
     meta: [
       {
@@ -15,36 +18,15 @@ export const Route = createFileRoute("/menu")({
       {
         name: "description",
         content:
-          "Karahi, biryani, daal and sides — cooked fresh in Surrey and delivered to Byfleet, West Byfleet, Woking and Weybridge. Halal homemade Pakistani food.",
+          "Karahi, biryani, daal and sides — cooked fresh in Surrey and delivered to Byfleet, West Byfleet, Woking and Weybridge.",
       },
-      { property: "og:title", content: "Menu — ZAIQA | Homemade Pakistani Kitchen" },
+      { property: "og:title", content: "Menu — ZAIQA" },
       { property: "og:url", content: "/menu" },
     ],
     links: [{ rel: "canonical", href: "/menu" }],
   }),
   component: MenuPage,
 });
-
-type MenuDish = {
-  id: string;
-  slug: string;
-  name: string;
-  category: Category;
-  description: string;
-  longDescription: string;
-  spice: number;
-  allergens: string[];
-  halal: boolean;
-  popular?: boolean;
-  weeklySpecial?: boolean;
-  image: string;
-  available: string[];
-  sizes: {
-    id: string;
-    label: string;
-    pricePence: number;
-  }[];
-};
 
 function getTodayName() {
   return new Date()
@@ -56,25 +38,27 @@ function formatAvailableDays(days: string[]) {
   return days.map((d) => d.charAt(0).toUpperCase() + d.slice(1)).join(", ");
 }
 
-function isAvailableToday(item: MenuDish, today: string) {
-  return item.available.includes("daily") || item.available.includes(today);
-}
-
 function MenuPage() {
   const [active, setActive] = useState<Category | "all">("all");
 
-  const dishes = menuData as MenuDish[];
-  const today = useMemo(() => getTodayName(), []);
+  const today = getTodayName();
 
-  const todaysMenu = useMemo(
-    () => dishes.filter((item) => isAvailableToday(item, today)),
-    [dishes, today]
-  );
+  // ✅ Load from local JSON (NO Cosmos)
+  const items = menuData as MenuItem[];
 
+  // ✅ Apply availability filtering
+  const availableItems = items.filter((item: any) => {
+    return (
+      item.available.includes("daily") ||
+      item.available.includes(today)
+    );
+  });
+
+  // ✅ Category filter
   const filtered =
     active === "all"
-      ? todaysMenu
-      : todaysMenu.filter((m) => m.category === active);
+      ? availableItems
+      : availableItems.filter((m) => m.category === active);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -88,16 +72,7 @@ function MenuPage() {
         </h1>
 
         <p className="mt-3 max-w-xl text-muted-foreground">
-          Cooked in small batches and delivered fresh to Byfleet, West Byfleet,
-          Woking and Weybridge. Tap a category to filter.
-        </p>
-
-        <p className="mt-2 text-sm text-muted-foreground">
-          Showing dishes available for{" "}
-          <span className="font-medium text-foreground">
-            {today.charAt(0).toUpperCase() + today.slice(1)}
-          </span>
-          .
+          Cooked fresh in Surrey. Tap a category to filter.
         </p>
       </header>
 
@@ -126,12 +101,12 @@ function MenuPage() {
             No dishes available today
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Try another day, or update the availability tags in your menu file.
+            Try another day.
           </p>
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((dish) => {
+          {filtered.map((dish: any) => {
             const firstSize = dish.sizes[0];
 
             const item: MenuItem = {
@@ -145,11 +120,9 @@ function MenuPage() {
               portion: firstSize.label,
             };
 
-            const showBadge = !dish.available.includes("daily");
-
             return (
               <div key={dish.id} className="space-y-2">
-                {showBadge && (
+                {!dish.available.includes("daily") && (
                   <div className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
                     Available: {formatAvailableDays(dish.available)}
                   </div>
@@ -163,9 +136,7 @@ function MenuPage() {
       )}
 
       <p className="mt-12 rounded-2xl bg-secondary p-4 text-xs text-secondary-foreground">
-        <strong>Allergen note:</strong> our food is prepared in a kitchen that
-        also handles nuts, dairy, gluten and sesame. If you have allergies,
-        please mention them in order notes.
+        <strong>Allergen note:</strong> may contain nuts, dairy, gluten, sesame.
       </p>
     </div>
   );
@@ -185,10 +156,10 @@ function CatPill({
       type="button"
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors",
+        "shrink-0 rounded-full border px-4 py-1.5 text-sm",
         active
           ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:bg-secondary"
+          : "border-border bg-card text-foreground"
       )}
     >
       {label}
