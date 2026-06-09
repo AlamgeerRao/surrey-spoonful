@@ -1,19 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { MealCard } from "@/components/site/meal-card";
-import { getMenu, CATEGORIES, type Category, type MenuItem } from "@/lib/menu-data";
+import { CATEGORIES, type Category, type MenuItem } from "@/lib/menu-data";
 import { cn } from "@/lib/utils";
+import menuData from "@/data/menu.json";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({
     meta: [
-      { title: "Menu — Homemade Pakistani Food in Byfleet, Woking, Weybridge | Surrey" },
+      {
+        title:
+          "Menu — ZAIQA | Homemade Pakistani Kitchen in Byfleet, Woking, Weybridge | Surrey",
+      },
       {
         name: "description",
         content:
           "Karahi, biryani, daal and sides — cooked fresh in Surrey and delivered to Byfleet, West Byfleet, Woking and Weybridge. Halal homemade Pakistani food.",
       },
-      { property: "og:title", content: "Menu — Homemade Pakistani Kitchen Surrey" },
+      { property: "og:title", content: "Menu — ZAIQA | Homemade Pakistani Kitchen" },
       { property: "og:url", content: "/menu" },
     ],
     links: [{ rel: "canonical", href: "/menu" }],
@@ -21,49 +25,79 @@ export const Route = createFileRoute("/menu")({
   component: MenuPage,
 });
 
+type MenuDish = {
+  id: string;
+  slug: string;
+  name: string;
+  category: Category;
+  description: string;
+  longDescription: string;
+  spice: number;
+  allergens: string[];
+  halal: boolean;
+  popular?: boolean;
+  weeklySpecial?: boolean;
+  image: string;
+  available: string[];
+  sizes: {
+    id: string;
+    label: string;
+    pricePence: number;
+  }[];
+};
+
+function getTodayName() {
+  return new Date()
+    .toLocaleDateString("en-GB", { weekday: "long" })
+    .toLowerCase();
+}
+
+function formatAvailableDays(days: string[]) {
+  return days.map((d) => d.charAt(0).toUpperCase() + d.slice(1)).join(", ");
+}
+
+function isAvailableToday(item: MenuDish, today: string) {
+  return item.available.includes("daily") || item.available.includes(today);
+}
+
 function MenuPage() {
   const [active, setActive] = useState<Category | "all">("all");
-  const [items, setItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // ✅ Load menu from API
-  useEffect(() => {
-    let mounted = true;
+  const dishes = menuData as MenuDish[];
+  const today = useMemo(() => getTodayName(), []);
 
-    (async () => {
-      try {
-        const menu = await getMenu();
-        if (mounted) setItems(menu);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
+  const todaysMenu = useMemo(
+    () => dishes.filter((item) => isAvailableToday(item, today)),
+    [dishes, today]
+  );
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // ✅ Filter items
   const filtered =
     active === "all"
-      ? items
-      : items.filter((m) => m.category === active);
+      ? todaysMenu
+      : todaysMenu.filter((m) => m.category === active);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-8">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Today's menu
+          Today&apos;s menu
         </div>
 
         <h1 className="mt-1 font-display text-4xl text-foreground sm:text-5xl">
-          Homemade Pakistani food, Surrey.
+          ZAIQA — Homemade Pakistani Kitchen
         </h1>
 
         <p className="mt-3 max-w-xl text-muted-foreground">
           Cooked in small batches and delivered fresh to Byfleet, West Byfleet,
           Woking and Weybridge. Tap a category to filter.
+        </p>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          Showing dishes available for{" "}
+          <span className="font-medium text-foreground">
+            {today.charAt(0).toUpperCase() + today.slice(1)}
+          </span>
+          .
         </p>
       </header>
 
@@ -86,16 +120,45 @@ function MenuPage() {
         </div>
       </div>
 
-      {/* ✅ Loading state */}
-      {loading ? (
-        <p className="text-center text-muted-foreground">
-          Loading menu...
-        </p>
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card p-8 text-center">
+          <h2 className="font-display text-2xl text-foreground">
+            No dishes available today
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Try another day, or update the availability tags in your menu file.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((m) => (
-            <MealCard key={m.id} item={m} />
-          ))}
+          {filtered.map((dish) => {
+            const firstSize = dish.sizes[0];
+
+            const item: MenuItem = {
+              ...dish,
+              id: `${dish.id}-${firstSize.id}`,
+              dishId: dish.id,
+              dishSlug: dish.slug,
+              sizeId: firstSize.id,
+              sizeLabel: firstSize.label,
+              pricePence: firstSize.pricePence,
+              portion: firstSize.label,
+            };
+
+            const showBadge = !dish.available.includes("daily");
+
+            return (
+              <div key={dish.id} className="space-y-2">
+                {showBadge && (
+                  <div className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
+                    Available: {formatAvailableDays(dish.available)}
+                  </div>
+                )}
+
+                <MealCard item={item} />
+              </div>
+            );
+          })}
         </div>
       )}
 
