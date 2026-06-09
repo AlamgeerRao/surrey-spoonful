@@ -12,7 +12,7 @@
     "popular": true,
     "weeklySpecial": false,
     "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=1200&q=80&auto=format&fit=crop",
-    "available": ["tuesday", "friday"],
+    "available": ["monday", "friday"],
     "sizes": [
       { "id": "quarter", "label": "Quarter (250g)", "pricePence": 660 },
       { "id": "half", "label": "Half (500g)", "pricePence": 1210 },
@@ -32,7 +32,7 @@
     "popular": true,
     "weeklySpecial": false,
     "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=1200&q=80&auto=format&fit=crop",
-    "available": ["tuesday", "friday"],
+    "available": ["tuesday", "thursday"],
     "sizes": [
       { "id": "quarter", "label": "Quarter (250g)", "pricePence": 840 },
       { "id": "half", "label": "Half (500g)", "pricePence": 1540 },
@@ -52,7 +52,7 @@
     "popular": true,
     "weeklySpecial": false,
     "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=1200&q=80&auto=format&fit=crop",
-    "available": ["tuesday", "friday"],
+    "available": ["wednesday", "friday"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 380 },
       { "id": "160g", "label": "Medium (160g)", "pricePence": 665 },
@@ -72,7 +72,7 @@
     "popular": false,
     "weeklySpecial": false,
     "image": "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=1200&q=80&auto=format&fit=crop",
-    "available": ["tuesday", "friday"],
+    "available": ["daily"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 200 },
       { "id": "160g", "label": "Medium (160g)", "pricePence": 350 },
