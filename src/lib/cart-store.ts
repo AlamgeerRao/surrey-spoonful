@@ -188,4 +188,3 @@ export function subscribe(listener: () => void) {
     if (i > -1) listeners.splice(i, 1);
   };
 }
-``
