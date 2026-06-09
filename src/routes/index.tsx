@@ -8,6 +8,7 @@ import { DELIVERY_AREAS, DELIVERY_FEE_PENCE } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import heroFeast from "@/assets/hero-feast.jpg";
 import menuData from "@/data/menu.json";
+import { setSelectedDeliveryDate } from "@/lib/cart-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -132,10 +133,10 @@ function HomePage() {
   }, [menu, selectedWeekday]);
 
   // ✅ Save selected delivery date so checkout can later reuse it
-  useEffect(() => {
-    localStorage.setItem(DELIVERY_DATE_STORAGE_KEY, selectedDateKey);
-  }, [selectedDateKey]);
-
+useEffect(() => {
+  setSelectedDeliveryDate(selectedDateKey);
+}, [selectedDateKey]);
+  
   return (
     <>
       {/* HERO */}
