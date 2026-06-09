@@ -53,10 +53,12 @@ type MenuDish = {
 };
 
 type DayOption = {
-  key: string; // YYYY-MM-DD
-  label: string; // Today / Tomorrow / Friday
-  weekday: string; // friday
+  key: string;       // YYYY-MM-DD
+  label: string;     // Today / Tomorrow / Friday
+  weekday: string;   // friday
 };
+
+const DELIVERY_DATE_STORAGE_KEY = "hpk_selected_delivery_date";
 
 function getWeekdayName(date: Date) {
   return date
@@ -70,6 +72,11 @@ function formatDay(day: string) {
 
 function isAvailable(item: MenuDish, day: string) {
   return item.available.includes("daily") || item.available.includes(day);
+}
+
+function formatAvailableDays(days: string[]) {
+  if (days.includes("daily")) return "Daily";
+  return days.map((d) => formatDay(d)).join(", ");
 }
 
 function getDeliveryDayOptions(): DayOption[] {
@@ -99,6 +106,7 @@ function getDeliveryDayOptions(): DayOption[] {
 function HomePage() {
   const menu = menuData as MenuDish[];
   const dayOptions = useMemo(() => getDeliveryDayOptions(), []);
+
   const [selectedDateKey, setSelectedDateKey] = useState(dayOptions[0].key);
 
   const selectedDay = useMemo(() => {
@@ -107,11 +115,13 @@ function HomePage() {
 
   const selectedWeekday = selectedDay.weekday;
 
+  // ✅ Selected day menu (clickable)
   const selectedDayMenu = useMemo(
     () => menu.filter((item) => isAvailable(item, selectedWeekday)),
     [menu, selectedWeekday]
   );
 
+  // ✅ Full week menu (selected-day dishes first)
   const fullWeekMenu = useMemo(() => {
     return [...menu].sort((a, b) => {
       const aSelected = isAvailable(a, selectedWeekday) ? 1 : 0;
@@ -122,11 +132,11 @@ function HomePage() {
     });
   }, [menu, selectedWeekday]);
 
-  // ✅ Save selected delivery date globally for cart / checkout
-  useEffect(() => {
-    setSelectedDeliveryDate(selectedDateKey);
-  }, [selectedDateKey]);
-
+  // ✅ Save selected delivery date so checkout can later reuse it
+useEffect(() => {
+  setSelectedDeliveryDate(selectedDateKey);
+}, [selectedDateKey]);
+  
   return (
     <>
       {/* HERO */}
@@ -147,6 +157,10 @@ function HomePage() {
         </div>
 
         <div className="mx-auto flex min-h-[80svh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-24">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/90 backdrop-blur">
+            <span aria-hidden>✦</span> Halal · Made in Surrey
+          </div>
+
           <h1 className="mt-5 max-w-3xl font-display text-4xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
             ZAIQA — Homemade Pakistani Kitchen
           </h1>
@@ -160,42 +174,7 @@ function HomePage() {
             .
           </p>
 
-          {/* TRUST + WHATSAPP CTA */}
-          <div className="mt-6">
-            <div className="grid grid-cols-2 gap-3 text-sm text-white/90 sm:grid-cols-4">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                <span>100% Halal</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4" />
-                <span>{formatPrice(DELIVERY_FEE_PENCE)} delivery</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <span>Lunch & dinner</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Leaf className="h-4 w-4" />
-                <span>Made fresh daily</span>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm text-white/80">
-              For event catering, contact us on WhatsApp.
-            </p>
-          </div>
-
           <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="rounded-full px-6">
-              <a href="#selected-day-menu">
-                Choose dishes <ArrowRight className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
-
             <Button
               asChild
               size="lg"
@@ -205,6 +184,32 @@ function HomePage() {
               <Link to="/about">Our story</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* TRUST STRIP */}
+      <section className="border-y border-border bg-card">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-2 sm:px-6 md:grid-cols-4">
+          <Feature
+            icon={<ShieldCheck className="h-5 w-5" />}
+            title="100% Halal"
+            body="Certified meat, ethical sourcing."
+          />
+          <Feature
+            icon={<Truck className="h-5 w-5" />}
+            title={`${formatPrice(DELIVERY_FEE_PENCE)} delivery`}
+            body="Across our Surrey delivery zones."
+          />
+          <Feature
+            icon={<Clock className="h-5 w-5" />}
+            title="Lunch & dinner"
+            body="Order at least 2 hrs before your slot."
+          />
+          <Feature
+            icon={<Leaf className="h-5 w-5" />}
+            title="Made fresh daily"
+            body="No shortcuts, never frozen."
+          />
         </div>
       </section>
 
@@ -242,7 +247,6 @@ function HomePage() {
 
       {/* SELECTED DAY MENU */}
       <Section
-        id="selected-day-menu"
         title="Selected delivery menu"
         subtitle={`Available for ${selectedDay.label}`}
       >
@@ -351,7 +355,7 @@ function HomePage() {
               slot.
             </p>
             <Button asChild className="mt-6 rounded-full">
-              <a href="#selected-day-menu">Start an order</a>
+              <Link to="/menu">Start an order</Link>
             </Button>
           </div>
 
@@ -394,7 +398,7 @@ function HomePage() {
             variant="secondary"
             className="mt-6 rounded-full bg-background px-6 text-foreground hover:bg-background/90"
           >
-            <a href="#selected-day-menu">Order now</a>
+            <Link to="/menu">Order now</Link>
           </Button>
         </div>
       </section>
@@ -405,21 +409,16 @@ function HomePage() {
 /* Small UI helpers */
 
 function Section({
-  id,
   title,
   subtitle,
   children,
 }: {
-  id?: string;
   title: string;
   subtitle: string;
   children: ReactNode;
 }) {
   return (
-    <section
-      id={id}
-      className="mx-auto max-w-6xl border-t border-border px-4 py-16 sm:px-6"
-    >
+    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 border-t border-border">
       <div className="mb-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
           {title}
@@ -443,6 +442,34 @@ function Empty({ text = "No dishes available." }: { text?: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center">
       <p className="text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-primary"
+        style={{
+          background: "color-mix(in oklab, var(--primary) 12%, transparent)",
+        }}
+        aria-hidden
+      >
+        {icon}
+      </div>
+      <div>
+        <div className="font-medium text-foreground">{title}</div>
+        <div className="text-xs text-muted-foreground">{body}</div>
+      </div>
     </div>
   );
 }
