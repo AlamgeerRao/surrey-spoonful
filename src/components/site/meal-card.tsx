@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Flame, Leaf } from "lucide-react";
+import { Flame, Leaf } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,12 @@ function Spice({ level }: { level: number }) {
       </span>
     );
   }
+
   return (
-    <span className="inline-flex items-center gap-0.5 text-xs" aria-label={`Spice level ${level} of 3`}>
+    <span
+      className="inline-flex items-center gap-0.5 text-xs"
+      aria-label={`Spice level ${level} of 3`}
+    >
       {Array.from({ length: 3 }).map((_, i) => (
         <Flame
           key={i}
@@ -50,13 +53,8 @@ export function MealCard({ item }: Props) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
-      
       {/* IMAGE */}
-      <Link
-        to="/menu/$slug"
-        params={{ slug: dish.slug }}
-        className="relative block aspect-[4/3] overflow-hidden"
-      >
+      <div className="relative block aspect-[4/3] overflow-hidden">
         <img
           src={dish.image}
           alt={dish.name}
@@ -65,12 +63,14 @@ export function MealCard({ item }: Props) {
           height={600}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {dish.popular && (
             <Badge className="bg-primary text-primary-foreground">
               Popular
             </Badge>
           )}
+
           {dish.weeklySpecial && (
             <Badge
               variant="secondary"
@@ -79,6 +79,7 @@ export function MealCard({ item }: Props) {
               This week
             </Badge>
           )}
+
           {dish.halal && (
             <Badge
               variant="outline"
@@ -88,18 +89,17 @@ export function MealCard({ item }: Props) {
             </Badge>
           )}
         </div>
-      </Link>
+      </div>
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-        
         {/* TITLE + PRICE */}
         <div className="flex items-start justify-between gap-2">
-          <Link to="/menu/$slug" params={{ slug: dish.slug }}>
-            <h3 className="font-display text-lg text-foreground hover:text-primary">
+          <div>
+            <h3 className="font-display text-lg text-foreground">
               {dish.name}
             </h3>
-          </Link>
+          </div>
 
           <div className="text-right">
             <div className="font-display text-lg text-foreground">
