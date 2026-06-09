@@ -156,11 +156,6 @@ useEffect(() => {
           <div className="absolute inset-0 bg-clove/40 mix-blend-multiply" />
         </div>
 
-        <div className="mx-auto flex min-h-[80svh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-24">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/90 backdrop-blur">
-            <span aria-hidden>✦</span> Halal · Made in Surrey
-          </div>
-
           <h1 className="mt-5 max-w-3xl font-display text-4xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
             ZAIQA — Homemade Pakistani Kitchen
           </h1>
@@ -173,6 +168,38 @@ useEffect(() => {
             </span>
             .
           </p>
+        {/* ✅ TRUST + CTA (moved into hero) */}
+<div className="mt-6">
+
+  {/* TRUST ITEMS */}
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 text-white/90 text-sm">
+    <div className="flex items-center gap-2">
+      <ShieldCheck className="h-4 w-4" />
+      <span>100% Halal</span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <Truck className="h-4 w-4" />
+      <span>£1.99 delivery</span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <Clock className="h-4 w-4" />
+      <span>Lunch & dinner</span>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <Leaf className="h-4 w-4" />
+      <span>Made fresh daily</span>
+    </div>
+  </div>
+
+  {/* NEW LINE */}
+  <p className="mt-4 text-sm text-white/80">
+    For event catering, contact us on WhatsApp
+  </p>
+
+</div>
 
           <div className="mt-7 flex flex-wrap gap-3">
             <Button
@@ -185,34 +212,7 @@ useEffect(() => {
             </Button>
           </div>
         </div>
-      </section>
-
-      {/* TRUST STRIP */}
-      <section className="border-y border-border bg-card">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-2 sm:px-6 md:grid-cols-4">
-          <Feature
-            icon={<ShieldCheck className="h-5 w-5" />}
-            title="100% Halal"
-            body="Certified meat, ethical sourcing."
-          />
-          <Feature
-            icon={<Truck className="h-5 w-5" />}
-            title={`${formatPrice(DELIVERY_FEE_PENCE)} delivery`}
-            body="Across our Surrey delivery zones."
-          />
-          <Feature
-            icon={<Clock className="h-5 w-5" />}
-            title="Lunch & dinner"
-            body="Order at least 2 hrs before your slot."
-          />
-          <Feature
-            icon={<Leaf className="h-5 w-5" />}
-            title="Made fresh daily"
-            body="No shortcuts, never frozen."
-          />
-        </div>
-      </section>
-
+     
       {/* DELIVERY DATE PICKER */}
       <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
