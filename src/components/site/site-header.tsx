@@ -8,11 +8,12 @@ import {
   getCart,
   subscribe,
   getCartDateLabel,
+  getSelectedDeliverySlot, // ✅ ADDED
 } from "@/lib/cart-store";
 
 const NAV = [
   { to: "/", label: "Home" },
-  { to: "/", label: "Menu" }, // ✅ point to homepage
+  { to: "/", label: "Menu" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
   { to: "/faq", label: "FAQ" },
@@ -27,22 +28,17 @@ export function SiteHeader() {
     select: (s) => s.location.pathname,
   });
 
-  // ✅ Sync cart + date badge
   useEffect(() => {
     const update = () => {
       const cart = getCart();
 
-      const total = cart.reduce(
-        (sum, i) => sum + i.quantity,
-        0
-      );
+      const total = cart.reduce((sum, i) => sum + i.quantity, 0);
 
       setCount(total);
       setCartDateLabel(getCartDateLabel());
     };
 
-    update(); // initial load
-
+    update();
     return subscribe(update);
   }, []);
 
@@ -50,7 +46,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
 
-        {/* ✅ LOGO */}
+        {/* LOGO */}
         <Link
           to="/"
           className="flex items-center gap-2"
@@ -73,7 +69,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        {/* ✅ NAV */}
+        {/* NAV */}
         <nav className="hidden items-center gap-1 md:flex">
           {NAV.map((n) => {
             const active = path === n.to;
@@ -95,10 +91,10 @@ export function SiteHeader() {
           })}
         </nav>
 
-        {/* ✅ RIGHT SIDE */}
+        {/* RIGHT SIDE */}
         <div className="flex items-center gap-3">
 
-          {/* ✅ DELIVERY DATE BADGE */}
+          {/* DELIVERY DATE BADGE */}
           {cartDateLabel && (
             <div className="hidden sm:flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
               <Calendar className="h-3 w-3" />
@@ -106,8 +102,21 @@ export function SiteHeader() {
             </div>
           )}
 
-          {/* ✅ BASKET */}
-          <Link to="/basket" className="relative">
+          {/* ✅ BASKET WITH BLOCK */}
+          <Link
+            to="/basket"
+            className="relative"
+            onClick={(e) => {
+              const slot = getSelectedDeliverySlot();
+
+              if (!slot) {
+                e.preventDefault(); // ✅ BLOCK navigation
+                alert(
+                  "Please select a delivery slot before viewing your basket."
+                );
+              }
+            }}
+          >
             <ShoppingBasket className="h-6 w-6 text-foreground" />
 
             {count > 0 && (
@@ -117,7 +126,7 @@ export function SiteHeader() {
             )}
           </Link>
 
-          {/* ✅ MOBILE MENU BUTTON */}
+          {/* MOBILE MENU BUTTON */}
           <Button
             variant="ghost"
             size="icon"
@@ -133,7 +142,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* ✅ MOBILE NAV */}
+      {/* MOBILE NAV */}
       {open && (
         <div className="border-t border-border/60 bg-background md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2">
@@ -148,7 +157,6 @@ export function SiteHeader() {
               </Link>
             ))}
 
-            {/* ✅ MOBILE DATE BADGE */}
             {cartDateLabel && (
               <div className="mt-2 flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
