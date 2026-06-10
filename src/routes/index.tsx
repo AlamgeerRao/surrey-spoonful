@@ -139,53 +139,95 @@ useEffect(() => {
   
   return (
     <>
-      {/* HERO */}
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img
-            src={heroFeast}
-            alt=""
-            width={1920}
-            height={1080}
-            className="h-full w-full object-cover"
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: "var(--gradient-hero)" }}
-          />
-          <div className="absolute inset-0 bg-clove/40 mix-blend-multiply" />
+{/* HERO */}
+<section className="relative isolate overflow-hidden">
+  {/* Background */}
+  <div className="absolute inset-0 -z-10">
+    <img
+      src={heroFeast}
+      alt=""
+      className="h-full w-full object-cover"
+    />
+    <div
+      className="absolute inset-0"
+      style={{ background: "var(--gradient-hero)" }}
+    />
+    <div className="absolute inset-0 bg-black/40" />
+  </div>
+
+  <div className="mx-auto flex min-h-[75vh] max-w-6xl flex-col justify-center px-4 py-20 sm:min-h-[80vh] sm:px-6">
+
+    {/* ✅ TRUST BAR (moved into hero) */}
+    <div className="mb-6 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
+      <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
+
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4" />
+          <span>100% Halal</span>
         </div>
 
-        <div className="mx-auto flex min-h-[80svh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-24">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/90 backdrop-blur">
-            <span aria-hidden>✦</span> Halal · Made in Surrey
-          </div>
-
-          <h1 className="mt-5 max-w-3xl font-display text-4xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
-            ZAIQA — Homemade Pakistani Kitchen
-          </h1>
-
-          <p className="mt-5 max-w-xl text-base text-white/85 sm:text-lg">
-            Karahi from a real kadhai. Biryani on dum. Daal that took a day to
-            make. Bringing our family kitchen to{" "}
-            <span className="underline decoration-saffron decoration-2 underline-offset-4">
-              Byfleet, West Byfleet, Woking & Weybridge
-            </span>
-            .
-          </p>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="rounded-full border-white/40 bg-white/10 px-6 text-white backdrop-blur hover:bg-white/20 hover:text-white"
-            >
-              <Link to="/about">Our story</Link>
-            </Button>
-          </div>
+        <div className="flex items-center gap-2">
+          <Truck className="h-4 w-4" />
+          <span>£1.99 delivery</span>
         </div>
-      </section>
+
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          <span>Lunch & dinner</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Leaf className="h-4 w-4" />
+          <span>Made fresh daily</span>
+        </div>
+
+      </div>
+    </div>
+
+    {/* ✅ HEADLINE */}
+    <h1 className="max-w-3xl font-display text-3xl leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+      Home-cooked Pakistani food, delivered with love.
+    </h1>
+
+    {/* ✅ SUBTEXT */}
+    <p className="mt-5 max-w-xl text-sm text-white/85 sm:text-base">
+      Karahi from a real kadhai. Biryani on dum. Daal that took a day to make.
+      Bringing our family kitchen to{" "}
+      <span className="underline decoration-saffron decoration-2 underline-offset-4">
+        Byfleet, West Byfleet, Woking & Weybridge
+      </span>.
+    </p>
+
+    {/* ✅ CTA */}
+    <div className="mt-6 flex flex-wrap gap-3">
+      <Button
+        size="lg"
+        className="rounded-full bg-orange-500 px-6 hover:bg-orange-600"
+        onClick={() =>
+          document
+            .getElementById("selected-day-menu")
+            ?.scrollIntoView({ behavior: "smooth" })
+        }
+      >
+        See today’s menu
+      </Button>
+
+      <Button
+        asChild
+        variant="outline"
+        className="rounded-full border-white/40 bg-white/10 px-6 text-white backdrop-blur hover:bg-white/20"
+      >
+        <Link to="/about">Our story</Link>
+      </Button>
+    </div>
+
+    {/* ✅ WHATSAPP LINE */}
+    <p className="mt-6 max-w-lg text-sm text-white/80">
+      For any event or gathering, we can provide freshly prepared home‑cooked food.
+    </p>
+
+  </div>
+</section>
 
       {/* TRUST STRIP */}
       <section className="border-y border-border bg-card">
