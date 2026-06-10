@@ -387,25 +387,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
           })}
         </div>
       </section>
-
-      {/* SELECTED DAY MENU */}
-      <Section
-        id="selected-day-menu"
-        title="Selected delivery menu"
-        subtitle={`Available for ${selectedDay.label}`}
-      >
-        {selectedDayMenu.length === 0 ? (
-          <Empty text={`No dishes available for ${selectedDay.label}.`} />
-        ) : (
-          <Grid>
-            {selectedDayMenu.map((dish) => (
-              <MealCard key={dish.id} item={dish as any} />
-            ))}
-          </Grid>
-        )}
-      </Section>
-
-      {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
+            {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* LEFT */}
@@ -545,6 +527,23 @@ const [selectedSlot, setSelectedSlotState] = useState<
           </div>
         </div>
       </section>
+
+      {/* SELECTED DAY MENU */}
+      <Section
+        id="selected-day-menu"
+        title="Selected delivery menu"
+        subtitle={`Available for ${selectedDay.label}`}
+      >
+        {selectedDayMenu.length === 0 ? (
+          <Empty text={`No dishes available for ${selectedDay.label}.`} />
+        ) : (
+          <Grid>
+            {selectedDayMenu.map((dish) => (
+              <MealCard key={dish.id} item={dish as any} />
+            ))}
+          </Grid>
+        )}
+      </Section>
 
       {/* FULL WEEK MENU */}
       <section className="border-y border-border bg-card/50">
