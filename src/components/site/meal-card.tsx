@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { priceFromPence, type Dish, type MenuItem } from "@/lib/menu-data";
-import { addToCart } from "@/lib/cart-store";
+import { addToCart, getSelectedDeliverySlot } from "@/lib/cart-store";
 
 function Spice({ level }: { level: number }) {
   if (level === 0) {
@@ -117,7 +117,7 @@ export function MealCard({ item }: Props) {
           </div>
         </div>
 
-        {/* DESCRIPTION (fixed height control) */}
+        {/* DESCRIPTION */}
         <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
           {dish.description}
         </p>
@@ -138,7 +138,7 @@ export function MealCard({ item }: Props) {
           </select>
         )}
 
-        {/* ✅ AVAILABILITY — consistent spacing */}
+        {/* AVAILABILITY */}
         {availabilityText && (
           <div className="pt-1">
             <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
@@ -155,6 +155,14 @@ export function MealCard({ item }: Props) {
             size="sm"
             disabled={hasMultipleSizes && !selectedSize}
             onClick={() => {
+              const slot = getSelectedDeliverySlot();
+
+              // ✅ BLOCK if no slot
+              if (!slot) {
+                alert("Please select a delivery slot first.");
+                return;
+              }
+
               const selected = sizes.find(
                 (s: any) => s.label === selectedSize
               );
