@@ -1,10 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { DELIVERY_FEE_PENCE, MIN_ORDER_PENCE } from "@/lib/delivery";
-import { getCart, subscribe, addToCart, setCart } from "@/lib/cart-store";
+import {
+  getCart,
+  subscribe,
+  addToCart,
+  setCart,
+  getSelectedDeliverySlot, // ✅ ADDED
+} from "@/lib/cart-store";
 import { format, parseISO, isValid } from "date-fns";
 
 export const Route = createFileRoute("/basket")({
@@ -15,8 +21,20 @@ const DELIVERY_DATE_STORAGE_KEY = "hpk_selected_delivery_date";
 const CART_DATE_KEY = "hpk_cart_date";
 
 function BasketPage() {
+  const navigate = useNavigate(); // ✅ NEW
+
   const [cart, setLocalCart] = useState(getCart());
   const [deliveryDate, setDeliveryDate] = useState<Date | null>(null);
+
+  // ✅ 🚫 BLOCK ACCESS IF NO SLOT
+  useEffect(() => {
+    const slot = getSelectedDeliverySlot();
+
+    if (!slot) {
+      alert("Please select a delivery slot before viewing your basket.");
+      navigate({ to: "/" });
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribe(() => {
@@ -37,7 +55,6 @@ function BasketPage() {
       }
     }
 
-    // ✅ Auto clear mismatch
     if (selected && cartDate && selected !== cartDate) {
       localStorage.removeItem("hpk_cart");
       localStorage.removeItem(CART_DATE_KEY);
@@ -90,7 +107,6 @@ function BasketPage() {
     setCart(updated);
   }
 
-  // ✅ CHANGE DATE (clears cart)
   function changeDate() {
     localStorage.removeItem("hpk_cart");
     localStorage.removeItem(CART_DATE_KEY);
@@ -116,7 +132,6 @@ function BasketPage() {
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="font-display text-4xl">Your basket</h1>
 
-      {/* ✅ DELIVERY DATE BAR */}
       {deliveryDate && (
         <div className="mt-6 flex items-center justify-between rounded-xl border p-4 bg-card">
           <div className="flex items-center gap-2 text-sm">
@@ -126,11 +141,7 @@ function BasketPage() {
             </span>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={changeDate}
-          >
+          <Button variant="outline" size="sm" onClick={changeDate}>
             Change date
           </Button>
         </div>
@@ -139,15 +150,10 @@ function BasketPage() {
       {/* CART ITEMS */}
       <ul className="mt-6 divide-y rounded-2xl border bg-card">
         {cart.map((item) => (
-          <li
-            key={item.id + item.size}
-            className="flex items-center gap-3 p-4"
-          >
+          <li key={item.id + item.size} className="flex items-center gap-3 p-4">
             <div className="flex-1">
               <div className="flex justify-between">
-                <h3 className="font-display text-lg">
-                  {item.name}
-                </h3>
+                <h3 className="font-display text-lg">{item.name}</h3>
 
                 <button onClick={() => removeItem(item)}>
                   <Trash2 className="h-4 w-4" />
