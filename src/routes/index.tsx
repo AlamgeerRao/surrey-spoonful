@@ -350,43 +350,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
           </p>
         </div>
       </section>
-
-      {/* DELIVERY DATE PICKER */}
-      <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
-        <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Choose delivery date
-        </div>
-
-        <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-          Plan your order
-        </h2>
-
-        <p className="mt-3 max-w-2xl text-muted-foreground">
-          Pick a delivery day and we’ll show you what’s available.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          {dayOptions.map((day, index) => {
-            const todayClosed = index === 0 && sameDayClosed;
-
-            return (
-              <button
-                key={day.key}
-                type="button"
-                disabled={todayClosed}
-                onClick={() => setSelectedDateKey(day.key)}
-                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                  selectedDateKey === day.key
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-foreground hover:bg-secondary"
-                } ${todayClosed ? "cursor-not-allowed opacity-50" : ""}`}
-              >
-                {todayClosed ? "Today (closed)" : day.label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      
             {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
@@ -525,6 +489,42 @@ const [selectedSlot, setSelectedSlotState] = useState<
                 ))}
             </div>
           </div>
+        </div>
+      </section>
+        {/* DELIVERY DATE PICKER */}
+      <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
+        <div className="text-xs uppercase tracking-[0.2em] text-primary">
+          Choose delivery date
+        </div>
+
+        <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+          Plan your order
+        </h2>
+
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Pick a delivery day and we’ll show you what’s available.
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {dayOptions.map((day, index) => {
+            const todayClosed = index === 0 && sameDayClosed;
+
+            return (
+              <button
+                key={day.key}
+                type="button"
+                disabled={todayClosed}
+                onClick={() => setSelectedDateKey(day.key)}
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                  selectedDateKey === day.key
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:bg-secondary"
+                } ${todayClosed ? "cursor-not-allowed opacity-50" : ""}`}
+              >
+                {todayClosed ? "Today (closed)" : day.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
