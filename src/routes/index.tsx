@@ -438,7 +438,7 @@ function HomePage() {
 
             <p className="mt-4 max-w-xl text-muted-foreground">
               Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
-              Two slots a day — Lunch and Dinner. Place orders at least{" "}
+              Two daily slots — Lunch and Dinner, plus Weekend Breakfast. Place orders at least{" "}
               <strong className="text-foreground">2 hours</strong> before your
               slot.
             </p>
