@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { MealCard } from "@/components/site/meal-card";
 import { CATEGORIES, type Category, type MenuItem } from "@/lib/menu-data";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ import menuData from "@/data/menu.json";
 
 export const Route = createFileRoute("/menu")({
   staticData: {
-    prerender: false, // ✅ FIX GitHub error
+    prerender: false,
   },
   head: () => ({
     meta: [
@@ -34,19 +34,13 @@ function getTodayName() {
     .toLowerCase();
 }
 
-function formatAvailableDays(days: string[]) {
-  return days.map((d) => d.charAt(0).toUpperCase() + d.slice(1)).join(", ");
-}
-
 function MenuPage() {
   const [active, setActive] = useState<Category | "all">("all");
 
   const today = getTodayName();
 
-  // ✅ Load from local JSON (NO Cosmos)
   const items = menuData as MenuItem[];
 
-  // ✅ Apply availability filtering
   const availableItems = items.filter((item: any) => {
     return (
       item.available.includes("daily") ||
@@ -54,7 +48,6 @@ function MenuPage() {
     );
   });
 
-  // ✅ Category filter
   const filtered =
     active === "all"
       ? availableItems
@@ -64,7 +57,7 @@ function MenuPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="mb-8">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Today&apos;s menu
+          Today's menu
         </div>
 
         <h1 className="mt-1 font-display text-4xl text-foreground sm:text-5xl">
@@ -120,17 +113,7 @@ function MenuPage() {
               portion: firstSize.label,
             };
 
-            return (
-              <div key={dish.id} className="space-y-2">
-                {!dish.available.includes("daily") && (
-                  <div className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
-                    Available: {formatAvailableDays(dish.available)}
-                  </div>
-                )}
-
-                <MealCard item={item} />
-              </div>
-            );
+            return <MealCard key={dish.id} item={item} />;
           })}
         </div>
       )}
