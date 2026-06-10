@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Clock3 } from "lucide-react";
 import { format, parseISO, isValid } from "date-fns";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { getCart, subscribe } from "@/lib/cart-store";
+import {
+  getCart,
+  subscribe,
+  getSelectedDeliverySlot,
+} from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
 
 import {
@@ -40,18 +44,19 @@ const schema = z.object({
   notes: z.string().optional(),
 });
 
-type SlotResponse = {
-  closed?: boolean;
-  slots: Array<{
-    slot: DeliverySlotId;
-    used?: number;
-    capacity: number;
-    closedByAdmin?: boolean;
-    allowedByTime?: boolean;
-    available: boolean;
-    remaining: number;
-  }>;
-};
+function slotLabel(slot: DeliverySlotId | "breakfast" | null | undefined) {
+  if (!slot) return "";
+  if (slot === "breakfast") return "Weekend breakfast";
+  if (slot === "lunch") return "Lunch";
+  return "Dinner";
+}
+
+function slotTime(slot: DeliverySlotId | "breakfast" | null | undefined) {
+  if (!slot) return "";
+  if (slot === "breakfast") return "10:00 till 12:00";
+  if (slot === "lunch") return "12:00 till 14:30";
+  return "17:00 till 19:30";
+}
 
 function CheckoutPage() {
   const [cart, setLocalCart] = useState(getCart());
@@ -77,11 +82,9 @@ function CheckoutPage() {
   const total = subtotalPence + DELIVERY_FEE_PENCE;
   const belowMin = subtotalPence < MIN_ORDER_PENCE;
 
-  // ✅ Delivery date now comes from homepage selection
+  // ✅ Delivery date and slot now come from homepage selection
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [slot, setSlot] = useState<DeliverySlotId>("lunch");
-  const [slotData, setSlotData] = useState<SlotResponse | null>(null);
-  const [slotLoading, setSlotLoading] = useState(false);
+  const [slot, setSlot] = useState<DeliverySlotId | "breakfast" | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -104,66 +107,25 @@ function CheckoutPage() {
     }
   }, []);
 
-  // ✅ Load delivery date chosen on homepage
+  // ✅ Load chosen delivery date from homepage
   useEffect(() => {
     const stored = localStorage.getItem(DELIVERY_DATE_STORAGE_KEY);
 
-    if (!stored) {
-      return;
-    }
+    if (!stored) return;
 
     const parsed = parseISO(stored);
-
     if (isValid(parsed)) {
       setDate(parsed);
     }
   }, []);
 
-  // ✅ Fetch slots based on locked delivery date
+  // ✅ Load chosen delivery slot from homepage/cart-store
   useEffect(() => {
-    if (!date) return;
-
-    const dateStr = format(date, "yyyy-MM-dd");
-    let active = true;
-
-    (async () => {
-      try {
-        setSlotLoading(true);
-
-        const res = await fetch(`${API_BASE}/slots?date=${dateStr}`);
-
-        if (!res.ok) {
-          throw new Error("Failed to load slot availability");
-        }
-
-        const data: SlotResponse = await res.json();
-
-        if (!active) return;
-
-        setSlotData(data);
-
-        const current = data.slots.find((s) => s.slot === slot);
-        if (!current || !current.available) {
-          const nextAvailable = data.slots.find((s) => s.available);
-          if (nextAvailable) {
-            setSlot(nextAvailable.slot);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        if (active) {
-          setSlotData(null);
-          toast.error("Could not load delivery slots");
-        }
-      } finally {
-        if (active) setSlotLoading(false);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [date, slot]);
+    const selectedSlot = getSelectedDeliverySlot();
+    if (selectedSlot) {
+      setSlot(selectedSlot as DeliverySlotId | "breakfast");
+    }
+  }, []);
 
   if (detailed.length === 0) {
     return (
@@ -176,18 +138,20 @@ function CheckoutPage() {
     );
   }
 
-  // ✅ If no date was selected on homepage
-  if (!date) {
+  // ✅ If no date or slot was selected on homepage
+  if (!date || !slot) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-display text-3xl">Select a delivery date first</h1>
+        <h1 className="font-display text-3xl">
+          Select delivery date and slot first
+        </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Please choose your delivery date on the homepage before continuing to
-          checkout.
+          Please choose your delivery date and delivery slot on the homepage
+          before continuing to checkout.
         </p>
         <div className="mt-6 flex justify-center gap-3">
           <Button asChild>
-            <Link to="/">Choose delivery date</Link>
+            <Link to="/">Choose delivery options</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/">Back to menu</Link>
@@ -221,12 +185,6 @@ function CheckoutPage() {
       toast.error(
         `Minimum order is ${formatPrice(MIN_ORDER_PENCE)} excluding delivery`
       );
-      return;
-    }
-
-    const chosen = slotData?.slots.find((s) => s.slot === slot);
-    if (!chosen || !chosen.available) {
-      toast.error("Please choose an available delivery slot");
       return;
     }
 
@@ -380,12 +338,12 @@ function CheckoutPage() {
               <div>
                 <h2 className="font-bold">Delivery</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Your delivery date was selected on the homepage.
+                  Your delivery date and slot were selected on the homepage.
                 </p>
               </div>
 
               <Button asChild variant="outline" size="sm">
-                <Link to="/">Change date</Link>
+                <Link to="/">Change options</Link>
               </Button>
             </div>
 
@@ -401,55 +359,17 @@ function CheckoutPage() {
 
             <div>
               <Label>Delivery slot</Label>
-
-              {slotLoading ? (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Loading slots...
-                </p>
-              ) : slotData ? (
-                <div className="mt-2 grid gap-2">
-                  {slotData.slots.map((s) => {
-                    const disabled = !s.available;
-
-                    return (
-                      <button
-                        key={s.slot}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => setSlot(s.slot)}
-                        className={cn(
-                          "flex items-center justify-between gap-3 rounded-xl border p-3 text-left text-sm transition-colors",
-                          slot === s.slot && !disabled
-                            ? "border-primary bg-primary/5"
-                            : "border-border bg-card",
-                          disabled && "cursor-not-allowed opacity-60"
-                        )}
-                      >
-                        <span>
-                          <span className="block font-medium text-foreground">
-                            {s.slot === "lunch" ? "Lunch" : "Dinner"}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {s.available
-                              ? `${s.remaining} of ${s.capacity} slots left`
-                              : "Unavailable"}
-                          </span>
-                        </span>
-
-                        {!s.available && (
-                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-600">
-                            Unavailable
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+              <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-sm">
+                <Clock3 className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <div className="font-medium text-foreground">
+                    {slotLabel(slot)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {slotTime(slot)}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm text-red-500 mt-2">
-                  Could not load slots
-                </p>
-              )}
+              </div>
             </div>
           </div>
         </div>
