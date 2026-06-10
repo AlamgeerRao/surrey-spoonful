@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Flame, Leaf } from "lucide-react";
+import { Flame, Leaf } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ function Spice({ level }: { level: number }) {
       </span>
     );
   }
+
   return (
     <span
       className="inline-flex items-center gap-0.5 text-xs"
@@ -39,6 +40,25 @@ function isDish(x: Dish | MenuItem): x is Dish {
   return Array.isArray((x as Dish).sizes);
 }
 
+function formatAvailableValue(value: unknown): string | null {
+  if (Array.isArray(value)) {
+    if (value.includes("daily")) return "Available daily";
+
+    const days = value
+      .map((d) => String(d))
+      .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+      .join(", ");
+
+    return days ? `Available: ${days}` : null;
+  }
+
+  if (value === true) {
+    return "Available";
+  }
+
+  return null;
+}
+
 export function MealCard({ item }: Props) {
   const dish = item;
 
@@ -51,9 +71,11 @@ export function MealCard({ item }: Props) {
 
   const [selectedSize, setSelectedSize] = useState("");
 
+  const availabilityText = formatAvailableValue((dish as any).available);
+
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
-      {/* ✅ IMAGE → SAFE LINK */}
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
+      {/* IMAGE */}
       <Link
         to="/menu/$slug"
         params={{ slug: dish.slug }}
@@ -97,7 +119,7 @@ export function MealCard({ item }: Props) {
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-        {/* ✅ TITLE + PRICE */}
+        {/* TITLE + PRICE */}
         <div className="flex items-start justify-between gap-2">
           <Link to="/menu/$slug" params={{ slug: dish.slug }}>
             <h3 className="font-display text-lg text-foreground hover:text-primary">
@@ -133,6 +155,15 @@ export function MealCard({ item }: Props) {
                 </option>
               ))}
             </select>
+          </div>
+        )}
+
+        {/* AVAILABILITY — now INSIDE card */}
+        {availabilityText && (
+          <div className="mt-1">
+            <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
+              {availabilityText}
+            </span>
           </div>
         )}
 
