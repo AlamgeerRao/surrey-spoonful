@@ -51,7 +51,7 @@
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
-    "image": "assets/food/chicken-biryani.jpg",
+    "image": "/assets/food/chicken-biryani.jpg",
     "available": ["wednesday", "friday"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 380 },
@@ -71,7 +71,7 @@
     "halal": true,
     "popular": false,
     "weeklySpecial": false,
-    "image": "assets/food/boiled-rice.jpg",
+    "image": "/assets/food/boiled-rice.jpg",
     "available": ["daily"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 200 },
