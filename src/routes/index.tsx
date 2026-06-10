@@ -134,10 +134,7 @@ function isWeekendWeekday(weekday: string) {
   return weekday === "saturday" || weekday === "sunday";
 }
 
-function getSlotTiles(
-  selectedDateKey: string,
-  selectedWeekday: string
-): SlotTile[] {
+function getSlotTiles(selectedDateKey: string, selectedWeekday: string): SlotTile[] {
   const { dateKey: todayKey, minutes: nowMinutes } = getUkNowParts();
   const isSameDay = selectedDateKey === todayKey;
   const weekend = isWeekendWeekday(selectedWeekday);
@@ -151,43 +148,45 @@ function getSlotTiles(
   const dinnerAvailable =
     !isSameDay || nowMinutes < 15 * 60;
 
-  const tiles: SlotTile[] = [
+  const breakfastReason = !weekend
+    ? "Available on Saturday and Sunday only"
+    : isSameDay && !breakfastAvailable
+    ? "Cut-off passed for today"
+    : undefined;
+
+  const lunchReason =
+    isSameDay && !lunchAvailable
+      ? "Cut-off passed for today"
+      : undefined;
+
+  const dinnerReason =
+    isSameDay && !dinnerAvailable
+      ? "Cut-off passed for today"
+      : undefined;
+
+  return [
+    {
+      id: "breakfast",
+      title: "Weekend breakfast",
+      time: "10:00 till 12:00",
+      available: breakfastAvailable,
+      reason: breakfastReason,
+    },
     {
       id: "lunch",
       title: "Lunch",
       time: "12:00 till 14:30",
       available: lunchAvailable,
-      reason:
-        isSameDay && !lunchAvailable
-          ? "Cut-off passed for today"
-          : undefined,
+      reason: lunchReason,
     },
     {
       id: "dinner",
       title: "Dinner",
       time: "17:00 till 19:30",
       available: dinnerAvailable,
-      reason:
-        isSameDay && !dinnerAvailable
-          ? "Cut-off passed for today"
-          : undefined,
+      reason: dinnerReason,
     },
   ];
-
-  if (weekend) {
-    tiles.unshift({
-      id: "breakfast",
-      title: "Weekend breakfast",
-      time: "10:00 till 12:00",
-      available: breakfastAvailable,
-      reason:
-        isSameDay && !breakfastAvailable
-          ? "Cut-off passed for today"
-          : undefined,
-    });
-  }
-
-  return tiles;
 }
 
 function HomePage() {
