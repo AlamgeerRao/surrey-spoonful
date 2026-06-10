@@ -328,42 +328,53 @@ function HomePage() {
           </div>
         </div>
       </section>
+      {/* DELIVERY INFO (SIMPLIFIED + SLOTS) */}
+<section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
 
-      {/* DELIVERY ZONES */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-          <div>
-            <div className="text-xs uppercase tracking-[0.2em] text-primary">
-              Delivery
-            </div>
-            <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-              We bring it straight to your door.
-            </h2>
-            <p className="mt-4 max-w-xl text-muted-foreground">
-              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
-              Two slots a day — Lunch and Dinner. Place orders at least{" "}
-              <strong className="text-foreground">2 hours</strong> before your
-              slot.
-            </p>
-          </div>
+    {/* LEFT */}
+    <div>
+      <div className="text-xs uppercase tracking-[0.2em] text-primary">
+        Delivery
+      </div>
 
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {DELIVERY_AREAS.map((a) => (
-              <li
-                key={a.name}
-                className="rounded-2xl border border-border bg-card p-5"
-              >
-                <div className="font-display text-lg text-foreground">
-                  {a.name}
-                </div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {a.postcodes.join(" · ")}
-                </div>
-              </li>
-            ))}
-          </ul>
+      <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+        We bring it straight to your door.
+      </h2>
+
+      <p className="mt-4 max-w-xl text-muted-foreground">
+        Flat £1.99 delivery across our zones. Two slots a day — Lunch and Dinner.
+        Place orders at least{" "}
+        <strong className="text-foreground">2 hours</strong> before your slot.
+      </p>
+    </div>
+
+    {/* RIGHT — DELIVERY SLOTS */}
+    <div className="grid gap-3 sm:grid-cols-2">
+
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="font-display text-lg text-foreground">
+          Lunch
         </div>
-      </section>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          12:00 — 15:00
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="font-display text-lg text-foreground">
+          Dinner
+        </div>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          17:00 — 21:00
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+      
     </>
   );
 }
