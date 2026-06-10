@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, Leaf, ShieldCheck, Truck } from "lucide-react";
+import { Clock, Leaf, ShieldCheck, Truck } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -53,12 +53,10 @@ type MenuDish = {
 };
 
 type DayOption = {
-  key: string;       // YYYY-MM-DD
-  label: string;     // Today / Tomorrow / Friday
-  weekday: string;   // friday
+  key: string;
+  label: string;
+  weekday: string;
 };
-
-const DELIVERY_DATE_STORAGE_KEY = "hpk_selected_delivery_date";
 
 function getWeekdayName(date: Date) {
   return date
@@ -72,11 +70,6 @@ function formatDay(day: string) {
 
 function isAvailable(item: MenuDish, day: string) {
   return item.available.includes("daily") || item.available.includes(day);
-}
-
-function formatAvailableDays(days: string[]) {
-  if (days.includes("daily")) return "Daily";
-  return days.map((d) => formatDay(d)).join(", ");
 }
 
 function getDeliveryDayOptions(): DayOption[] {
@@ -115,13 +108,11 @@ function HomePage() {
 
   const selectedWeekday = selectedDay.weekday;
 
-  // ✅ Selected day menu (clickable)
   const selectedDayMenu = useMemo(
     () => menu.filter((item) => isAvailable(item, selectedWeekday)),
     [menu, selectedWeekday]
   );
 
-  // ✅ Full week menu (selected-day dishes first)
   const fullWeekMenu = useMemo(() => {
     return [...menu].sort((a, b) => {
       const aSelected = isAvailable(a, selectedWeekday) ? 1 : 0;
@@ -132,126 +123,83 @@ function HomePage() {
     });
   }, [menu, selectedWeekday]);
 
-  // ✅ Save selected delivery date so checkout can later reuse it
-useEffect(() => {
-  setSelectedDeliveryDate(selectedDateKey);
-}, [selectedDateKey]);
-  
+  useEffect(() => {
+    setSelectedDeliveryDate(selectedDateKey);
+  }, [selectedDateKey]);
+
   return (
     <>
-{/* HERO */}
-<section className="relative isolate overflow-hidden">
-  {/* Background */}
-  <div className="absolute inset-0 -z-10">
-    <img
-      src={heroFeast}
-      alt=""
-      className="h-full w-full object-cover"
-    />
-    <div
-      className="absolute inset-0"
-      style={{ background: "var(--gradient-hero)" }}
-    />
-    <div className="absolute inset-0 bg-black/40" />
-  </div>
-
-  <div className="mx-auto flex min-h-[75vh] max-w-6xl flex-col justify-center px-4 py-20 sm:min-h-[80vh] sm:px-6">
-
-    {/* ✅ TRUST BAR (moved into hero) */}
-    <div className="mb-6 rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
-      <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
-
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4" />
-          <span>100% Halal</span>
+      {/* HERO */}
+      <section className="relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <img
+            src={heroFeast}
+            alt=""
+            width={1920}
+            height={1080}
+            className="h-full w-full object-cover"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: "var(--gradient-hero)" }}
+          />
+          <div className="absolute inset-0 bg-black/45" />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Truck className="h-4 w-4" />
-          <span>£1.99 delivery</span>
-        </div>
+        <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-20 sm:min-h-[82vh] sm:px-6">
+          {/* HERO TRUST BAR */}
+          <div className="mb-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
+            <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span>100% Halal</span>
+              </div>
 
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4" />
-          <span>Lunch & dinner</span>
-        </div>
+              <div className="flex items-center gap-2">
+                <Truck className="h-4 w-4" />
+                <span>{formatPrice(DELIVERY_FEE_PENCE)} delivery</span>
+              </div>
 
-        <div className="flex items-center gap-2">
-          <Leaf className="h-4 w-4" />
-          <span>Made fresh daily</span>
-        </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>Lunch & dinner</span>
+              </div>
 
-      </div>
-    </div>
+              <div className="flex items-center gap-2">
+                <Leaf className="h-4 w-4" />
+                <span>Made fresh daily</span>
+              </div>
+            </div>
+          </div>
 
-    {/* ✅ HEADLINE */}
-    <h1 className="max-w-3xl font-display text-3xl leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-      Home-cooked Pakistani food, delivered with love.
-    </h1>
+          <h1 className="max-w-4xl font-display text-4xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
+            Home‑cooked Pakistani food, delivered with love.
+          </h1>
 
-    {/* ✅ SUBTEXT */}
-    <p className="mt-5 max-w-xl text-sm text-white/85 sm:text-base">
-      Karahi from a real kadhai. Biryani on dum. Daal that took a day to make.
-      Bringing our family kitchen to{" "}
-      <span className="underline decoration-saffron decoration-2 underline-offset-4">
-        Byfleet, West Byfleet, Woking & Weybridge
-      </span>.
-    </p>
+          <p className="mt-5 max-w-2xl text-base text-white/90 sm:text-lg">
+             Bringing our family kitchen to{" "}
+            <span className="underline decoration-saffron decoration-2 underline-offset-4">
+              Byfleet, West Byfleet, Woking & Weybridge
+            </span>
+            .
+          </p>
 
-    {/* ✅ CTA */}
-    <div className="mt-6 flex flex-wrap gap-3">
-      <Button
-        size="lg"
-        className="rounded-full bg-orange-500 px-6 hover:bg-orange-600"
-        onClick={() =>
-          document
-            .getElementById("selected-day-menu")
-            ?.scrollIntoView({ behavior: "smooth" })
-        }
-      >
-        See today’s menu
-      </Button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-full border-white/40 bg-white/10 px-6 text-white backdrop-blur hover:bg-white/20 hover:text-white"
+            >
+              <Link to="/about">Our story</Link>
+            </Button>
+          </div>
 
-      <Button
-        asChild
-        variant="outline"
-        className="rounded-full border-white/40 bg-white/10 px-6 text-white backdrop-blur hover:bg-white/20"
-      >
-        <Link to="/about">Our story</Link>
-      </Button>
-    </div>
-
-    {/* ✅ WHATSAPP LINE */}
-    <p className="mt-6 max-w-lg text-sm text-white/80">
-      For any event or gathering, we can provide freshly prepared home‑cooked food.
-    </p>
-
-  </div>
-</section>
-
-      {/* TRUST STRIP */}
-      <section className="border-y border-border bg-card">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-2 sm:px-6 md:grid-cols-4">
-          <Feature
-            icon={<ShieldCheck className="h-5 w-5" />}
-            title="100% Halal"
-            body="Certified meat, ethical sourcing."
-          />
-          <Feature
-            icon={<Truck className="h-5 w-5" />}
-            title={`${formatPrice(DELIVERY_FEE_PENCE)} delivery`}
-            body="Across our Surrey delivery zones."
-          />
-          <Feature
-            icon={<Clock className="h-5 w-5" />}
-            title="Lunch & dinner"
-            body="Order at least 2 hrs before your slot."
-          />
-          <Feature
-            icon={<Leaf className="h-5 w-5" />}
-            title="Made fresh daily"
-            body="No shortcuts, never frozen."
-          />
+          <p className="mt-6 max-w-2xl text-sm text-white/85 sm:text-base">
+            For any event or gathering, we can provide freshly prepared
+            home‑cooked food. Message us on WhatsApp to discuss your
+            requirements.
+          </p>
         </div>
       </section>
 
@@ -289,6 +237,7 @@ useEffect(() => {
 
       {/* SELECTED DAY MENU */}
       <Section
+        id="selected-day-menu"
         title="Selected delivery menu"
         subtitle={`Available for ${selectedDay.label}`}
       >
@@ -382,7 +331,7 @@ useEffect(() => {
 
       {/* DELIVERY ZONES */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-2 md:items-center">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
               Delivery
@@ -390,18 +339,15 @@ useEffect(() => {
             <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
               We bring it straight to your door.
             </h2>
-            <p className="mt-4 text-muted-foreground">
+            <p className="mt-4 max-w-xl text-muted-foreground">
               Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
               Two slots a day — Lunch and Dinner. Place orders at least{" "}
               <strong className="text-foreground">2 hours</strong> before your
               slot.
             </p>
-            <Button asChild className="mt-6 rounded-full">
-              <Link to="/menu">Start an order</Link>
-            </Button>
           </div>
 
-          <ul className="grid grid-cols-2 gap-3">
+          <ul className="grid gap-3 sm:grid-cols-2">
             {DELIVERY_AREAS.map((a) => (
               <li
                 key={a.name}
@@ -418,32 +364,6 @@ useEffect(() => {
           </ul>
         </div>
       </section>
-
-      {/* CTA */}
-      <section className="mx-auto mb-4 max-w-6xl px-4 sm:px-6">
-        <div
-          className="overflow-hidden rounded-3xl px-6 py-10 text-center sm:px-12 sm:py-14"
-          style={{
-            background: "var(--gradient-warm)",
-            boxShadow: "var(--shadow-warm)",
-          }}
-        >
-          <h2 className="font-display text-3xl text-primary-foreground sm:text-4xl">
-            Hungry? Let&apos;s eat.
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-primary-foreground/90">
-            Choose a delivery date and order home-cooked Pakistani classics.
-          </p>
-          <Button
-            asChild
-            size="lg"
-            variant="secondary"
-            className="mt-6 rounded-full bg-background px-6 text-foreground hover:bg-background/90"
-          >
-            <Link to="/menu">Order now</Link>
-          </Button>
-        </div>
-      </section>
     </>
   );
 }
@@ -451,16 +371,21 @@ useEffect(() => {
 /* Small UI helpers */
 
 function Section({
+  id,
   title,
   subtitle,
   children,
 }: {
+  id?: string;
   title: string;
   subtitle: string;
   children: ReactNode;
 }) {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 border-t border-border">
+    <section
+      id={id}
+      className="mx-auto max-w-6xl border-t border-border px-4 py-16 sm:px-6"
+    >
       <div className="mb-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
           {title}
@@ -484,34 +409,6 @@ function Empty({ text = "No dishes available." }: { text?: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center">
       <p className="text-muted-foreground">{text}</p>
-    </div>
-  );
-}
-
-function Feature({
-  icon,
-  title,
-  body,
-}: {
-  icon: ReactNode;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-primary"
-        style={{
-          background: "color-mix(in oklab, var(--primary) 12%, transparent)",
-        }}
-        aria-hidden
-      >
-        {icon}
-      </div>
-      <div>
-        <div className="font-medium text-foreground">{title}</div>
-        <div className="text-xs text-muted-foreground">{body}</div>
-      </div>
     </div>
   );
 }
