@@ -1,3 +1,5 @@
+import menuData from "@/data/menu.json";
+
 // ✅ TYPES
 
 export type SpiceLevel = 0 | 1 | 2 | 3;
@@ -50,33 +52,13 @@ export const CATEGORIES = [
   { id: "sides", label: "Sides", blurb: "Bread & snacks" }
 ];
 
-// ✅ FALLBACK DATA (KEEP YOUR FULL VERSION HERE)
+// =========================================================
+// ✅ SINGLE SOURCE OF TRUTH (JSON ONLY)
+// =========================================================
 
-export const DISHES: Dish[] = [
-  {
-    id: "chicken-karahi",
-    slug: "chicken-karahi",
-    name: "Chicken Karahi",
-    category: "curries",
-    description: "Tomato, ginger, green chilli — wok-fired.",
-    longDescription: "Signature karahi made fresh.",
-    spice: 2,
-    allergens: ["Dairy"],
-    halal: true,
-    popular: true,
-    weeklySpecial: false,
-    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d",
-    available: true,
-    sizes: [
-      { id: "quarter", label: "Quarter (250g)", pricePence: 660 },
-      { id: "half", label: "Half (500g)", pricePence: 1210 },
-      { id: "full", label: "Full (1kg)", pricePence: 2200 }
-    ]
-  }
-  // ✅ IMPORTANT: keep adding your full DISHES list here
-];
+export const DISHES: Dish[] = menuData as Dish[];
 
-// ✅ FLATTENED MENU (fallback only)
+// ✅ FLATTENED MENU (used by UI if needed)
 export const MENU: MenuItem[] = DISHES.flatMap((d) =>
   d.sizes.map((s) => ({
     id: `${d.id}-${s.id}`,
@@ -101,14 +83,13 @@ export const MENU: MenuItem[] = DISHES.flatMap((d) =>
   }))
 );
 
-
 // =========================================================
-// ✅ API INTEGRATION (FINAL FIX)
+// ✅ API INTEGRATION
 // =========================================================
 
 const API_URL = "https://javfoodapp001.azurewebsites.net/api/menu";
 
-// ✅ Now returns Dish[] (NOT flattened)
+// ✅ Still allows API override, but falls back to JSON
 export async function getMenu(): Promise<Dish[]> {
   try {
     const res = await fetch(API_URL);
@@ -119,12 +100,11 @@ export async function getMenu(): Promise<Dish[]> {
 
     return data;
   } catch (err) {
-    console.error("API failed, using fallback", err);
+    console.error("API failed, using JSON fallback", err);
 
     return DISHES;
   }
 }
-
 
 // =========================================================
 // ✅ HELPERS (SAFE + CLEAN)
@@ -134,7 +114,6 @@ export function getDish(slug: string): Dish | undefined {
   return DISHES.find((d) => d.slug === slug);
 }
 
-// ✅ Updated to avoid syntax errors and return default size
 export function getMenuItem(slug: string): MenuItem | undefined {
   const dish = getDish(slug);
   if (!dish) return undefined;
@@ -164,6 +143,7 @@ export function getWeeklySpecials(): Dish[] {
 export function getByCategory(cat: Category): Dish[] {
   return DISHES.filter((d) => d.category === cat);
 }
+
 export function priceFromPence(dish: Dish): number {
   return Math.min(...dish.sizes.map((s) => s.pricePence));
 }
