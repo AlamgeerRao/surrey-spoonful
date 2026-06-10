@@ -7,9 +7,6 @@ import { formatPrice } from "@/lib/format";
 import { priceFromPence, type Dish, type MenuItem } from "@/lib/menu-data";
 import { addToCart, getSelectedDeliverySlot } from "@/lib/cart-store";
 
-// ✅ Show guidance only once
-let hasShownSlotHint = false;
-
 function Spice({ level }: { level: number }) {
   if (level === 0) {
     return (
@@ -90,9 +87,11 @@ export function MealCard({ item }: Props) {
               Popular
             </Badge>
           )}
+
           {dish.weeklySpecial && (
             <Badge variant="secondary">This week</Badge>
           )}
+
           {dish.halal && (
             <Badge className="bg-white/85 text-foreground backdrop-blur">
               Halal
@@ -158,12 +157,10 @@ export function MealCard({ item }: Props) {
             onClick={() => {
               const slot = getSelectedDeliverySlot();
 
-              // ✅ Show guidance ONLY ONCE (no blocking)
-              if (!slot && !hasShownSlotHint) {
-                alert(
-                  "Please select a delivery slot from the Delivery section above.\n\nIf you don’t select one, a default slot may be used later."
-                );
-                hasShownSlotHint = true;
+              // ✅ BLOCK if no slot
+              if (!slot) {
+                alert("Please select a delivery slot first.");
+                return;
               }
 
               const selected = sizes.find(
