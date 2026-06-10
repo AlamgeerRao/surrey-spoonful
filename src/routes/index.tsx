@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MealCard } from "@/components/site/meal-card";
-import { DELIVERY_AREAS, DELIVERY_FEE_PENCE } from "@/lib/delivery";
+import { DELIVERY_FEE_PENCE } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import heroFeast from "@/assets/hero-feast.jpg";
 import menuData from "@/data/menu.json";
@@ -58,6 +58,14 @@ type DayOption = {
   weekday: string;
 };
 
+type SlotTile = {
+  id: "breakfast" | "lunch" | "dinner";
+  title: string;
+  time: string;
+  available: boolean;
+  reason?: string;
+};
+
 function getWeekdayName(date: Date) {
   return date
     .toLocaleDateString("en-GB", { weekday: "long" })
@@ -95,6 +103,7 @@ function getDeliveryDayOptions(): DayOption[] {
 
   return options;
 }
+
 function getUkNowParts() {
   const now = new Date();
 
@@ -125,15 +134,10 @@ function isWeekendWeekday(weekday: string) {
   return weekday === "saturday" || weekday === "sunday";
 }
 
-type SlotTile = {
-  id: "breakfast" | "lunch" | "dinner";
-  title: string;
-  time: string;
-  available: boolean;
-  reason?: string;
-};
-
-function getSlotTiles(selectedDateKey: string, selectedWeekday: string): SlotTile[] {
+function getSlotTiles(
+  selectedDateKey: string,
+  selectedWeekday: string
+): SlotTile[] {
   const { dateKey: todayKey, minutes: nowMinutes } = getUkNowParts();
   const isSameDay = selectedDateKey === todayKey;
   const weekend = isWeekendWeekday(selectedWeekday);
@@ -153,14 +157,20 @@ function getSlotTiles(selectedDateKey: string, selectedWeekday: string): SlotTil
       title: "Lunch",
       time: "12:00 till 14:30",
       available: lunchAvailable,
-      reason: isSameDay && !lunchAvailable ? "Cut-off passed for today" : undefined,
+      reason:
+        isSameDay && !lunchAvailable
+          ? "Cut-off passed for today"
+          : undefined,
     },
     {
       id: "dinner",
       title: "Dinner",
       time: "17:00 till 19:30",
       available: dinnerAvailable,
-      reason: isSameDay && !dinnerAvailable ? "Cut-off passed for today" : undefined,
+      reason:
+        isSameDay && !dinnerAvailable
+          ? "Cut-off passed for today"
+          : undefined,
     },
   ];
 
@@ -262,7 +272,7 @@ function HomePage() {
           </h1>
 
           <p className="mt-5 max-w-2xl text-base text-white/90 sm:text-lg">
-             Bringing our family kitchen to{" "}
+            Bringing our family kitchen to{" "}
             <span className="underline decoration-saffron decoration-2 underline-offset-4">
               Byfleet, West Byfleet, Woking & Weybridge
             </span>
@@ -413,75 +423,75 @@ function HomePage() {
           </div>
         </div>
       </section>
-{/* DELIVERY INFO + SLOT TILES */}
-<section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-  <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-    {/* LEFT */}
-    <div>
-      <div className="text-xs uppercase tracking-[0.2em] text-primary">
-        Delivery
-      </div>
 
-      <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-        We bring it straight to your door.
-      </h2>
-
-      <p className="mt-4 max-w-xl text-muted-foreground">
-        Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones. Two slots a day — Lunch and Dinner.
-        Place orders at least{" "}
-        <strong className="text-foreground">2 hours</strong> before your slot.
-      </p>
-
-      <p className="mt-3 text-sm text-muted-foreground">
-        Showing slot availability for{" "}
-        <strong className="text-foreground">{selectedDay.label}</strong>.
-      </p>
-    </div>
-
-    {/* RIGHT — SLOT TILES */}
-    <div className="grid gap-3 sm:grid-cols-2">
-      {deliverySlots.map((slot) => (
-        <div
-          key={slot.id}
-          className={cn(
-            "rounded-2xl border p-5 transition-colors",
-            slot.available
-              ? "border-border bg-card"
-              : "border-border bg-muted/40 opacity-70"
-          )}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="font-display text-lg text-foreground">
-                {slot.title}
-              </div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                {slot.time}
-              </div>
+      {/* DELIVERY INFO + SLOT TILES */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+          {/* LEFT */}
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] text-primary">
+              Delivery
             </div>
 
-            <span
-              className={cn(
-                "shrink-0 rounded-full px-3 py-1 text-xs font-medium",
-                slot.available
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-amber-100 text-amber-900"
-              )}
-            >
-              {slot.available ? "Available" : "Unavailable"}
-            </span>
+            <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+              We bring it straight to your door.
+            </h2>
+
+            <p className="mt-4 max-w-xl text-muted-foreground">
+              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
+              Two slots a day — Lunch and Dinner. Place orders at least{" "}
+              <strong className="text-foreground">2 hours</strong> before your
+              slot.
+            </p>
+
+            <p className="mt-3 text-sm text-muted-foreground">
+              Showing slot availability for{" "}
+              <strong className="text-foreground">{selectedDay.label}</strong>.
+            </p>
           </div>
 
-          {slot.reason && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              {slot.reason}
-            </p>
-          )}
+          {/* RIGHT — SLOT TILES */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {deliverySlots.map((slot) => (
+              <div
+                key={slot.id}
+                className={`rounded-2xl border p-5 transition-colors ${
+                  slot.available
+                    ? "border-border bg-card"
+                    : "border-border bg-muted/40 opacity-70"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-display text-lg text-foreground">
+                      {slot.title}
+                    </div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {slot.time}
+                    </div>
+                  </div>
+
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                      slot.available
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-900"
+                    }`}
+                  >
+                    {slot.available ? "Available" : "Unavailable"}
+                  </span>
+                </div>
+
+                {slot.reason && (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {slot.reason}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>      
+      </section>
     </>
   );
 }
