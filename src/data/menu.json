@@ -51,7 +51,7 @@
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
-    "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=1200&q=80&auto=format&fit=crop",
+    "image": "assets/food/chicken-biryani.jpg",
     "available": ["wednesday", "friday"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 380 },
@@ -71,7 +71,7 @@
     "halal": true,
     "popular": false,
     "weeklySpecial": false,
-    "image": "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=1200&q=80&auto=format&fit=crop",
+    "image": "assets/food/boiled-rice.jpg",
     "available": ["daily"],
     "sizes": [
       { "id": "80g", "label": "Small (80g)", "pricePence": 200 },
