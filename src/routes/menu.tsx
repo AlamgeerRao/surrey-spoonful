@@ -88,16 +88,24 @@ function MenuPage() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center">
-          <h2 className="font-display text-2xl text-foreground">
-            No dishes available today
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Try another day.
-          </p>
-        </div>
-      ) : (
+ {filtered.length === 0 ? (
+  <div className="rounded-2xl border border-border bg-card p-8 text-center">
+    <h2 className="font-display text-2xl text-foreground">
+      No dishes in today’s menu for this category
+    </h2>
+
+    <p className="mt-3 text-sm text-muted-foreground">
+      Try another category, or{" "}
+      <a
+        href="/#selected-day-menu"
+        className="font-medium text-primary underline underline-offset-2"
+      >
+        go to homepage and plan your order
+      </a>
+      .
+    </p>
+  </div>
+): (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((dish: any) => {
             const firstSize = dish.sizes[0];
