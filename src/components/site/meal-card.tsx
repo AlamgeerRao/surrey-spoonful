@@ -17,10 +17,7 @@ function Spice({ level }: { level: number }) {
   }
 
   return (
-    <span
-      className="inline-flex items-center gap-0.5 text-xs"
-      aria-label={`Spice level ${level} of 3`}
-    >
+    <span className="inline-flex items-center gap-0.5 text-xs">
       {Array.from({ length: 3 }).map((_, i) => (
         <Flame
           key={i}
@@ -52,10 +49,6 @@ function formatAvailableValue(value: unknown): string | null {
     return days ? `Available: ${days}` : null;
   }
 
-  if (value === true) {
-    return "Available";
-  }
-
   return null;
 }
 
@@ -85,8 +78,6 @@ export function MealCard({ item }: Props) {
           src={dish.image}
           alt={dish.name}
           loading="lazy"
-          width={800}
-          height={600}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -98,19 +89,11 @@ export function MealCard({ item }: Props) {
           )}
 
           {dish.weeklySpecial && (
-            <Badge
-              variant="secondary"
-              className="bg-secondary text-secondary-foreground"
-            >
-              This week
-            </Badge>
+            <Badge variant="secondary">This week</Badge>
           )}
 
           {dish.halal && (
-            <Badge
-              variant="outline"
-              className="border-transparent bg-white/85 text-foreground backdrop-blur"
-            >
+            <Badge className="bg-white/85 text-foreground backdrop-blur">
               Halal
             </Badge>
           )}
@@ -127,40 +110,37 @@ export function MealCard({ item }: Props) {
             </h3>
           </Link>
 
-          <div className="text-right">
-            <div className="font-display text-lg text-foreground">
-              {hasMultipleSizes
-                ? `from ${formatPrice(fromPence)}`
-                : formatPrice(fromPence)}
-            </div>
+          <div className="text-right font-display text-lg text-foreground whitespace-nowrap">
+            {hasMultipleSizes
+              ? `from ${formatPrice(fromPence)}`
+              : formatPrice(fromPence)}
           </div>
         </div>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">
+        {/* DESCRIPTION (fixed height control) */}
+        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
           {dish.description}
         </p>
 
         {/* SIZE SELECTOR */}
         {hasMultipleSizes && (
-          <div className="mt-2">
-            <select
-              className="w-full rounded border p-2 text-sm"
-              value={selectedSize}
-              onChange={(e) => setSelectedSize(e.target.value)}
-            >
-              <option value="">Select size</option>
-              {sizes.map((s: any) => (
-                <option key={s.label} value={s.label}>
-                  {s.label} - £{(s.pricePence / 100).toFixed(2)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            className="w-full rounded border p-2 text-sm"
+            value={selectedSize}
+            onChange={(e) => setSelectedSize(e.target.value)}
+          >
+            <option value="">Select size</option>
+            {sizes.map((s: any) => (
+              <option key={s.id} value={s.label}>
+                {s.label} - £{(s.pricePence / 100).toFixed(2)}
+              </option>
+            ))}
+          </select>
         )}
 
-        {/* AVAILABILITY — now INSIDE card */}
+        {/* ✅ AVAILABILITY — consistent spacing */}
         {availabilityText && (
-          <div className="mt-1">
+          <div className="pt-1">
             <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
               {availabilityText}
             </span>
@@ -168,49 +148,28 @@ export function MealCard({ item }: Props) {
         )}
 
         {/* FOOTER */}
-        <div className="mt-auto flex items-center justify-between pt-2">
+        <div className="mt-auto flex items-center justify-between pt-3">
           <Spice level={dish.spice} />
 
-          {hasMultipleSizes ? (
-            <Button
-              size="sm"
-              disabled={!selectedSize}
-              onClick={() => {
-                if (!selectedSize) return;
+          <Button
+            size="sm"
+            disabled={hasMultipleSizes && !selectedSize}
+            onClick={() => {
+              const selected = sizes.find(
+                (s: any) => s.label === selectedSize
+              );
 
-                const selected = sizes.find(
-                  (s: any) => s.label === selectedSize
-                );
-
-                if (!selected) return;
-
-                addToCart({
-                  id: dish.id,
-                  name: dish.name,
-                  size: selected.label,
-                  pricePence: selected.pricePence,
-                  quantity: 1,
-                });
-              }}
-            >
-              Add
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={() => {
-                addToCart({
-                  id: dish.id,
-                  name: dish.name,
-                  size: "standard",
-                  pricePence: fromPence || 0,
-                  quantity: 1,
-                });
-              }}
-            >
-              Add
-            </Button>
-          )}
+              addToCart({
+                id: dish.id,
+                name: dish.name,
+                size: selected?.label || "standard",
+                pricePence: selected?.pricePence || fromPence || 0,
+                quantity: 1,
+              });
+            }}
+          >
+            Add
+          </Button>
         </div>
       </div>
     </article>
