@@ -1,9 +1,14 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Minus, Plus, Trash2, Calendar } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Minus, Plus, Trash2, Calendar, Clock3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import { DELIVERY_FEE_PENCE, MIN_ORDER_PENCE } from "@/lib/delivery";
+
+import {
+  DELIVERY_FEE_PENCE,
+  MIN_ORDER_PENCE,
+} from "@/lib/delivery";
+
 import {
   getCart,
   subscribe,
@@ -11,6 +16,7 @@ import {
   setCart,
   getSelectedDeliverySlot, // ✅ ADDED
 } from "@/lib/cart-store";
+
 import { format, parseISO, isValid } from "date-fns";
 
 export const Route = createFileRoute("/basket")({
@@ -20,21 +26,24 @@ export const Route = createFileRoute("/basket")({
 const DELIVERY_DATE_STORAGE_KEY = "hpk_selected_delivery_date";
 const CART_DATE_KEY = "hpk_cart_date";
 
-function BasketPage() {
-  const navigate = useNavigate(); // ✅ NEW
+function slotLabel(slot: string | null) {
+  if (!slot) return "";
+  if (slot === "breakfast") return "Weekend breakfast";
+  if (slot === "lunch") return "Lunch";
+  return "Dinner";
+}
 
+function slotTime(slot: string | null) {
+  if (!slot) return "";
+  if (slot === "breakfast") return "10:00 till 12:00";
+  if (slot === "lunch") return "12:00 till 14:30";
+  return "17:00 till 19:30";
+}
+
+function BasketPage() {
   const [cart, setLocalCart] = useState(getCart());
   const [deliveryDate, setDeliveryDate] = useState<Date | null>(null);
-
-  // ✅ 🚫 BLOCK ACCESS IF NO SLOT
-  useEffect(() => {
-    const slot = getSelectedDeliverySlot();
-
-    if (!slot) {
-      alert("Please select a delivery slot before viewing your basket.");
-      navigate({ to: "/" });
-    }
-  }, []);
+  const [slot, setSlot] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = subscribe(() => {
@@ -60,6 +69,12 @@ function BasketPage() {
       localStorage.removeItem(CART_DATE_KEY);
       setLocalCart([]);
     }
+  }, []);
+
+  // ✅ Load slot from cart-store
+  useEffect(() => {
+    const s = getSelectedDeliverySlot();
+    if (s) setSlot(s);
   }, []);
 
   const subtotalPence = cart.reduce(
@@ -132,18 +147,37 @@ function BasketPage() {
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="font-display text-4xl">Your basket</h1>
 
+      {/* ✅ DELIVERY DATE + SLOT */}
       {deliveryDate && (
-        <div className="mt-6 flex items-center justify-between rounded-xl border p-4 bg-card">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>
-              Delivery: {format(deliveryDate, "EEEE, d MMM yyyy")}
-            </span>
+        <div className="mt-6 rounded-xl border p-4 bg-card space-y-2">
+
+          {/* DATE */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>
+                Delivery: {format(deliveryDate, "EEEE, d MMM yyyy")}
+              </span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={changeDate}
+            >
+              Change
+            </Button>
           </div>
 
-          <Button variant="outline" size="sm" onClick={changeDate}>
-            Change date
-          </Button>
+          {/* ✅ SLOT */}
+          {slot && (
+            <div className="flex items-center gap-2 text-sm">
+              <Clock3 className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {slotLabel(slot)} — {slotTime(slot)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -153,7 +187,9 @@ function BasketPage() {
           <li key={item.id + item.size} className="flex items-center gap-3 p-4">
             <div className="flex-1">
               <div className="flex justify-between">
-                <h3 className="font-display text-lg">{item.name}</h3>
+                <h3 className="font-display text-lg">
+                  {item.name}
+                </h3>
 
                 <button onClick={() => removeItem(item)}>
                   <Trash2 className="h-4 w-4" />
@@ -188,12 +224,20 @@ function BasketPage() {
 
       {/* TOTAL */}
       <div className="mt-6 border rounded-xl p-5 bg-card">
-        <Row label="Subtotal" value={formatPrice(subtotalPence)} />
-        <Row label="Delivery" value={formatPrice(DELIVERY_FEE_PENCE)} />
+        <div className="flex justify-between text-sm">
+          <span>Subtotal</span>
+          <span>{formatPrice(subtotalPence)}</span>
+        </div>
 
-        <hr className="my-3" />
+        <div className="flex justify-between text-sm mt-1">
+          <span>Delivery</span>
+          <span>{formatPrice(DELIVERY_FEE_PENCE)}</span>
+        </div>
 
-        <Row label="Total" value={formatPrice(total)} strong />
+        <div className="flex justify-between font-bold mt-3 text-base">
+          <span>Total</span>
+          <span>{formatPrice(total)}</span>
+        </div>
 
         {belowMin && (
           <p className="mt-3 text-sm text-amber-700 bg-amber-100 p-3 rounded">
@@ -209,15 +253,6 @@ function BasketPage() {
           <Link to="/checkout">Continue</Link>
         </Button>
       </div>
-    </div>
-  );
-}
-
-function Row({ label, value, strong }: any) {
-  return (
-    <div className={`flex justify-between ${strong ? "font-bold" : ""}`}>
-      <span>{label}</span>
-      <span>{value}</span>
     </div>
   );
 }
