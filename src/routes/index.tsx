@@ -8,7 +8,11 @@ import { DELIVERY_FEE_PENCE } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import heroFeast from "@/assets/hero-feast.jpg";
 import menuData from "@/data/menu.json";
-import { setSelectedDeliveryDate } from "@/lib/cart-store";
+import {
+  setSelectedDeliveryDate,
+  setSelectedDeliverySlot,
+  getSelectedDeliverySlot,
+} from "@/lib/cart-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -213,6 +217,10 @@ function HomePage() {
   const [selectedDateKey, setSelectedDateKey] = useState(
     () => getInitialSelectedDateKey(dayOptions)
   );
+  function setSelectedSlot(slot: "breakfast" | "lunch" | "dinner") {
+  setSelectedSlotState(slot);        // ✅ updates UI
+  setSelectedDeliverySlot(slot);     // ✅ saves globally
+}
 
   const selectedDay = useMemo(() => {
     return dayOptions.find((d) => d.key === selectedDateKey) || dayOptions[0];
@@ -227,35 +235,31 @@ function HomePage() {
   const { minutes } = getUkNowParts();
   const sameDayClosed = minutes >= 15 * 60;
 
-  const [selectedSlot, setSelectedSlot] = useState<
-    "breakfast" | "lunch" | "dinner" | null
-  >(null);
+const [selectedSlot, setSelectedSlotState] = useState<
+  "breakfast" | "lunch" | "dinner" | null
+>(() => getSelectedDeliverySlot() as any);
 
   // Keep delivery date in sync for basket/checkout
   useEffect(() => {
     setSelectedDeliveryDate(selectedDateKey);
   }, [selectedDateKey]);
 
-  // Keep slot selection valid and persisted
   useEffect(() => {
-    const currentStillValid =
-      selectedSlot &&
-      deliverySlots.some((s) => s.id === selectedSlot && s.available);
+  if (!selectedSlot) return;
 
-    if (!currentStillValid) {
-      const firstAvailable = deliverySlots.find((s) => s.available);
-      setSelectedSlot(firstAvailable ? firstAvailable.id : null);
+  const stillValid = deliverySlots.some(
+    (s) => s.id === selectedSlot && s.available
+  );
+
+  if (!stillValid) {
+    const firstAvailable = deliverySlots.find((s) => s.available);
+
+    if (firstAvailable) {
+      setSelectedSlot(firstAvailable.id);
     }
-  }, [selectedDateKey, selectedWeekday]);
-
-  useEffect(() => {
-    if (selectedSlot) {
-      localStorage.setItem(DELIVERY_SLOT_STORAGE_KEY, selectedSlot);
-    } else {
-      localStorage.removeItem(DELIVERY_SLOT_STORAGE_KEY);
-    }
-  }, [selectedSlot]);
-
+  }
+}, [deliverySlots]);
+  
   const selectedDayMenu = useMemo(
     () => menu.filter((item) => isAvailable(item, selectedWeekday)),
     [menu, selectedWeekday]
