@@ -95,6 +95,90 @@ function getDeliveryDayOptions(): DayOption[] {
 
   return options;
 }
+function getUkNowParts() {
+  const now = new Date();
+
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = Object.fromEntries(
+    formatter.formatToParts(now).map((p) => [p.type, p.value])
+  );
+
+  const dateKey = `${parts.year}-${parts.month}-${parts.day}`;
+  const minutes = Number(parts.hour) * 60 + Number(parts.minute);
+
+  return {
+    dateKey,
+    minutes,
+  };
+}
+
+function isWeekendWeekday(weekday: string) {
+  return weekday === "saturday" || weekday === "sunday";
+}
+
+type SlotTile = {
+  id: "breakfast" | "lunch" | "dinner";
+  title: string;
+  time: string;
+  available: boolean;
+  reason?: string;
+};
+
+function getSlotTiles(selectedDateKey: string, selectedWeekday: string): SlotTile[] {
+  const { dateKey: todayKey, minutes: nowMinutes } = getUkNowParts();
+  const isSameDay = selectedDateKey === todayKey;
+  const weekend = isWeekendWeekday(selectedWeekday);
+
+  const breakfastAvailable =
+    weekend && (!isSameDay || nowMinutes < 7 * 60);
+
+  const lunchAvailable =
+    !isSameDay || nowMinutes < 9 * 60;
+
+  const dinnerAvailable =
+    !isSameDay || nowMinutes < 15 * 60;
+
+  const tiles: SlotTile[] = [
+    {
+      id: "lunch",
+      title: "Lunch",
+      time: "12:00 till 14:30",
+      available: lunchAvailable,
+      reason: isSameDay && !lunchAvailable ? "Cut-off passed for today" : undefined,
+    },
+    {
+      id: "dinner",
+      title: "Dinner",
+      time: "17:00 till 19:30",
+      available: dinnerAvailable,
+      reason: isSameDay && !dinnerAvailable ? "Cut-off passed for today" : undefined,
+    },
+  ];
+
+  if (weekend) {
+    tiles.unshift({
+      id: "breakfast",
+      title: "Weekend breakfast",
+      time: "10:00 till 12:00",
+      available: breakfastAvailable,
+      reason:
+        isSameDay && !breakfastAvailable
+          ? "Cut-off passed for today"
+          : undefined,
+    });
+  }
+
+  return tiles;
+}
 
 function HomePage() {
   const menu = menuData as MenuDish[];
@@ -107,6 +191,7 @@ function HomePage() {
   }, [dayOptions, selectedDateKey]);
 
   const selectedWeekday = selectedDay.weekday;
+  const deliverySlots = getSlotTiles(selectedDateKey, selectedWeekday);
 
   const selectedDayMenu = useMemo(
     () => menu.filter((item) => isAvailable(item, selectedWeekday)),
@@ -328,10 +413,9 @@ function HomePage() {
           </div>
         </div>
       </section>
-      {/* DELIVERY INFO (SIMPLIFIED + SLOTS) */}
+{/* DELIVERY INFO + SLOT TILES */}
 <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
   <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-
     {/* LEFT */}
     <div>
       <div className="text-xs uppercase tracking-[0.2em] text-primary">
@@ -343,38 +427,61 @@ function HomePage() {
       </h2>
 
       <p className="mt-4 max-w-xl text-muted-foreground">
-        Flat £1.99 delivery across our zones. Two slots a day — Lunch and Dinner.
+        Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones. Two slots a day — Lunch and Dinner.
         Place orders at least{" "}
         <strong className="text-foreground">2 hours</strong> before your slot.
       </p>
+
+      <p className="mt-3 text-sm text-muted-foreground">
+        Showing slot availability for{" "}
+        <strong className="text-foreground">{selectedDay.label}</strong>.
+      </p>
     </div>
 
-    {/* RIGHT — DELIVERY SLOTS */}
+    {/* RIGHT — SLOT TILES */}
     <div className="grid gap-3 sm:grid-cols-2">
+      {deliverySlots.map((slot) => (
+        <div
+          key={slot.id}
+          className={cn(
+            "rounded-2xl border p-5 transition-colors",
+            slot.available
+              ? "border-border bg-card"
+              : "border-border bg-muted/40 opacity-70"
+          )}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="font-display text-lg text-foreground">
+                {slot.title}
+              </div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                {slot.time}
+              </div>
+            </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="font-display text-lg text-foreground">
-          Lunch
-        </div>
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">
-          12:00 — 15:00
-        </div>
-      </div>
+            <span
+              className={cn(
+                "shrink-0 rounded-full px-3 py-1 text-xs font-medium",
+                slot.available
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-amber-100 text-amber-900"
+              )}
+            >
+              {slot.available ? "Available" : "Unavailable"}
+            </span>
+          </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="font-display text-lg text-foreground">
-          Dinner
+          {slot.reason && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {slot.reason}
+            </p>
+          )}
         </div>
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">
-          17:00 — 21:00
-        </div>
-      </div>
-
+      ))}
     </div>
-
   </div>
-</section>
-      
+</section>      
     </>
   );
 }
