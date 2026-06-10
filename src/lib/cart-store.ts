@@ -9,8 +9,9 @@ type CartItem = {
 const STORAGE_KEY = "hpk-cart";
 const CART_DATE_KEY = "hpk_cart_date";
 const DELIVERY_DATE_STORAGE_KEY = "hpk_selected_delivery_date";
+const DELIVERY_SLOT_STORAGE_KEY = "hpk_selected_delivery_slot"; // ✅ NEW
 
-// ✅ Load cart from browser storage
+// ✅ Load cart
 function loadCart(): CartItem[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -20,13 +21,11 @@ function loadCart(): CartItem[] {
   }
 }
 
-// ✅ Save cart to browser storage
+// ✅ Save cart
 function saveCart(cart: CartItem[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-  } catch {
-    // ignore errors
-  }
+  } catch {}
 }
 
 function getStoredCartDate(): string | null {
@@ -40,17 +39,13 @@ function getStoredCartDate(): string | null {
 function setStoredCartDate(dateKey: string) {
   try {
     localStorage.setItem(CART_DATE_KEY, dateKey);
-  } catch {
-    // ignore errors
-  }
+  } catch {}
 }
 
 function clearStoredCartDate() {
   try {
     localStorage.removeItem(CART_DATE_KEY);
-  } catch {
-    // ignore errors
-  }
+  } catch {}
 }
 
 function getStoredSelectedDeliveryDate(): string | null {
@@ -61,14 +56,34 @@ function getStoredSelectedDeliveryDate(): string | null {
   }
 }
 
+// ✅ NEW SLOT HELPERS
+function getStoredSelectedDeliverySlot(): string | null {
+  try {
+    return localStorage.getItem(DELIVERY_SLOT_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setStoredSelectedDeliverySlot(slot: string) {
+  try {
+    localStorage.setItem(DELIVERY_SLOT_STORAGE_KEY, slot);
+  } catch {}
+}
+
+function clearStoredSelectedDeliverySlot() {
+  try {
+    localStorage.removeItem(DELIVERY_SLOT_STORAGE_KEY);
+  } catch {}
+}
+
 // ✅ initialise from storage
 let cart: CartItem[] = loadCart();
 
-// subscribers (simple global state)
 const listeners: (() => void)[] = [];
 
 function notify() {
-  saveCart(cart); // ✅ persist on every update
+  saveCart(cart);
   listeners.forEach((l) => l());
 }
 
@@ -76,7 +91,7 @@ export function getCart() {
   return cart;
 }
 
-// ✅ Selected delivery date helpers
+// ✅ DELIVERY DATE
 export function getSelectedDeliveryDateKey() {
   return getStoredSelectedDeliveryDate();
 }
@@ -84,9 +99,17 @@ export function getSelectedDeliveryDateKey() {
 export function setSelectedDeliveryDate(dateKey: string) {
   try {
     localStorage.setItem(DELIVERY_DATE_STORAGE_KEY, dateKey);
-  } catch {
-    // ignore errors
-  }
+  } catch {}
+  notify();
+}
+
+// ✅ ✅ NEW: DELIVERY SLOT API (public)
+export function getSelectedDeliverySlot() {
+  return getStoredSelectedDeliverySlot();
+}
+
+export function setSelectedDeliverySlot(slot: "breakfast" | "lunch" | "dinner") {
+  setStoredSelectedDeliverySlot(slot);
   notify();
 }
 
@@ -110,34 +133,37 @@ export function getCartDateLabel() {
   });
 }
 
-// ✅ Core enforcement: one basket = one delivery date
+// ✅ CORE: One basket = one date
 export function addToCart(item: CartItem) {
   const selectedDate = getStoredSelectedDeliveryDate();
+  const selectedSlot = getStoredSelectedDeliverySlot(); // ✅ NEW
+
   const cartDate = getStoredCartDate();
 
-  // No selected date → block add
+  // ❌ Block if no date
   if (!selectedDate) {
     window.alert("Please select a delivery date first.");
     return;
   }
 
-  // Cart already belongs to another day
+  // ❌ Block if no slot (future-ready safe guard)
+  if (!selectedSlot) {
+    window.alert("Please select a delivery slot first.");
+    return;
+  }
+
   if (cartDate && cartDate !== selectedDate) {
     const confirmClear = window.confirm(
       "Your basket contains dishes for another delivery date. Changing date will clear your basket. Continue?"
     );
 
-    if (!confirmClear) {
-      return;
-    }
+    if (!confirmClear) return;
 
-    // clear current cart first
     cart = [];
     saveCart(cart);
     setStoredCartDate(selectedDate);
   }
 
-  // first add to empty or unbound cart → bind basket date
   if (!cartDate) {
     setStoredCartDate(selectedDate);
   }
@@ -157,7 +183,7 @@ export function addToCart(item: CartItem) {
   notify();
 }
 
-// ✅ Replace entire cart (for qty/remove logic)
+// ✅ Replace cart
 export function setCart(newCart: CartItem[]) {
   cart = newCart;
 
@@ -165,19 +191,18 @@ export function setCart(newCart: CartItem[]) {
     clearStoredCartDate();
   } else if (!getStoredCartDate()) {
     const selectedDate = getStoredSelectedDeliveryDate();
-    if (selectedDate) {
-      setStoredCartDate(selectedDate);
-    }
+    if (selectedDate) setStoredCartDate(selectedDate);
   }
 
   notify();
 }
 
-// ✅ Explicit clear helper
+// ✅ Clear cart
 export function clearCart() {
   cart = [];
   saveCart(cart);
   clearStoredCartDate();
+  clearStoredSelectedDeliverySlot(); // ✅ also clear slot
   notify();
 }
 
