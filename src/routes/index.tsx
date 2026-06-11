@@ -454,7 +454,6 @@ useEffect(() => {
 
 </div>
 
-)}
   {selectedDayMenu.length === 0 ? (
     <Empty text={`No dishes available for ${selectedDay.label}.`} />
   ) : (
