@@ -362,32 +362,6 @@ useEffect(() => {
      
       {/* DELIVERY DATE PICKER */}
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
-       {/* ✅ DELIVERY SUMMARY BAR (INLINE) */}
-{selectedSlot && (
-  <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card px-3 py-2 text-sm">
-
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-muted-foreground">📅</span>
-      <span className="font-medium">{selectedDay.label}</span>
-
-      <span className="text-muted-foreground">🕒</span>
-      <span className="font-medium">
-        {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-      </span>
-    </div>
-
-    <button
-      onClick={() => {
-        document
-          .getElementById("delivery-slot-section")
-          ?.scrollIntoView({ behavior: "smooth" });
-      }}
-      className="text-sm font-medium text-primary hover:underline"
-    >
-      Change slot
-    </button>
-  </div>
-)}
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
           Step 1 — Choose delivery date
         </div>
@@ -428,6 +402,32 @@ useEffect(() => {
         id="selected-day-menu"
         title="Step 2 - Select delivery menu"
         subtitle={`Available for ${selectedDay.label}`}
+               {/* ✅ DELIVERY SUMMARY BAR (INLINE) */}
+{selectedSlot && (
+  <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card px-3 py-2 text-sm">
+
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="text-muted-foreground">📅</span>
+      <span className="font-medium">{selectedDay.label}</span>
+
+      <span className="text-muted-foreground">🕒</span>
+      <span className="font-medium">
+        {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+      </span>
+    </div>
+
+    <button
+      onClick={() => {
+        document
+          .getElementById("delivery-slot-section")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }}
+      className="text-sm font-medium text-primary hover:underline"
+    >
+      Change slot
+    </button>
+  </div>
+)}
       >
         {selectedDayMenu.length === 0 ? (
           <Empty text={`No dishes available for ${selectedDay.label}.`} />
