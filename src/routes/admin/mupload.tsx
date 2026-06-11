@@ -12,7 +12,7 @@ function AdminPage() {
   const [input, setInput] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
 
-  const [rawRows, setRawRows] = useState<any[]>([]); ✅ added here
+  const [rawRows, setRawRows] = useState<any[]>([]);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
