@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
     meta: [
       {
         title:
-          "ZAIQA — Homemade Pakistani Food, Surrey | Halal delivery in Byfleet, Woking & Weybridge",
+          "ZAIQAS — Homemade Pakistani Food, Surrey | Halal delivery in Byfleet, Woking & Weybridge",
       },
       {
         name: "description",
@@ -397,27 +397,39 @@ useEffect(() => {
         </div>
       </section>
 
-   {/* SELECTED DAY MENU */}
+  {/* SELECTED DAY MENU */}
 <Section
   id="selected-day-menu"
   title="Step 2 - Select delivery menu"
   subtitle={`Available for ${selectedDay.label}`}
 >
 
-  {/* ✅ DELIVERY SUMMARY BAR (INLINE) */}
+  {/* ✅ DELIVERY SUMMARY BAR (POLISHED) */}
   {selectedSlot && (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card px-3 py-2 text-sm">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm">
 
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-muted-foreground">📅</span>
-        <span className="font-medium">{selectedDay.label}</span>
+      {/* LEFT SIDE */}
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
 
-        <span className="text-muted-foreground">🕒</span>
-        <span className="font-medium">
-          {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-        </span>
+        {/* DATE */}
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground">📅</span>
+          <span className="font-medium">
+            {selectedDay.label} ({new Date(selectedDay.key).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})
+          </span>
+        </div>
+
+        {/* SLOT */}
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground">🕒</span>
+          <span className="font-medium">
+            {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+          </span>
+        </div>
+
       </div>
 
+      {/* RIGHT SIDE */}
       <button
         onClick={() => {
           document
@@ -426,7 +438,7 @@ useEffect(() => {
         }}
         className="text-sm font-medium text-primary hover:underline"
       >
-        Change slot
+        Change
       </button>
     </div>
   )}
@@ -440,7 +452,9 @@ useEffect(() => {
       ))}
     </Grid>
   )}
+
 </Section>
+
        {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
       <section
         id="delivery-slot-section"
