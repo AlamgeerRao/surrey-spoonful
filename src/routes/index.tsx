@@ -294,7 +294,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
           <div className="absolute inset-0 bg-black/45" />
         </div>
 
-        className="mx-auto flex min-h-[55vh] max-w-6xl flex-col justify-center px-4 py-14 sm:min-h-[60vh] sm:px-6"
+        <div className="mx-auto flex min-h-[55vh] max-w-6xl flex-col justify-center px-4 py-14 sm:min-h-[60vh] sm:px-6">
           {/* HERO TRUST BAR */}
           <div className="mb-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
             <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
