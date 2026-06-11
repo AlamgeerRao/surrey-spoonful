@@ -140,9 +140,9 @@
     "slots": ["breakfast"],
     "sizes": [
       {
-        "id": "standard",
+        "id": "2",
         "label": "Omelette + 2 Parathas + Pickle",
-        "pricePence": 100
+        "pricePence": 1000
       }
     ]
   }
