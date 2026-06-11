@@ -1,26 +1,147 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import existingMenu from "@/data/menu.json";
 
-
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/admin/mupload")({
   component: AdminPage,
 });
 
 const ADMIN_PASSWORD = "zaiqa123";
 
-const mergedMenu = useMemo(() => {
-  if (transformedRows.length === 0) return [];
+type MenuSize = {
+  id: string;
+  label: string;
+  pricePence: number;
+};
 
-  return mergeMenu(existingMenu as any[], transformedRows);
-}, [transformedRows]);
+type MenuItem = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  description: string;
+  longDescription: string;
+  spice: 0 | 1 | 2 | 3;
+  allergens: string[];
+  halal: boolean;
+  popular: boolean;
+  weeklySpecial: boolean;
+  image: string;
+  available: string[];
+  slots?: string[];
+  sizes: MenuSize[];
+};
+
+function toBool(value: unknown) {
+  if (typeof value === "boolean") return value;
+  const text = String(value ?? "").trim().toLowerCase();
+  return text === "true" || text === "yes" || text === "1";
+}
+
+function toStringSafe(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function toStringArray(value: unknown) {
+  const text = toStringSafe(value);
+  if (!text) return [];
+  return text
+    .split(",")
+    .map((x) => x.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function toSpice(value: unknown): 0 | 1 | 2 | 3 {
+  const n = Number(value);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return 0;
+}
+
+function buildSizesFromRow(row: Record<string, unknown>): MenuSize[] {
+  const sizes: MenuSize[] = [];
+
+  const mapping = [
+    {
+      id: toStringSafe(row.size1_id),
+      label: toStringSafe(row.size1_label),
+      pricePence: Number(row.size1_pricePence),
+    },
+    {
+      id: toStringSafe(row.size2_id),
+      label: toStringSafe(row.size2_label),
+      pricePence: Number(row.size2_pricePence),
+    },
+    {
+      id: toStringSafe(row.size3_id),
+      label: toStringSafe(row.size3_label),
+      pricePence: Number(row.size3_pricePence),
+    },
+  ];
+
+  for (const s of mapping) {
+    if (s.id && s.label && Number.isFinite(s.pricePence) && s.pricePence > 0) {
+      sizes.push({
+        id: s.id,
+        label: s.label,
+        pricePence: s.pricePence,
+      });
+    }
+  }
+
+  return sizes;
+}
+
+function transformRowToMenuItem(row: Record<string, unknown>): MenuItem | null {
+  const id = toStringSafe(row.id);
+  if (!id) return null;
+
+  const slug = toStringSafe(row.slug) || id;
+  const sizes = buildSizesFromRow(row);
+
+  return {
+    id,
+    slug,
+    name: toStringSafe(row.name),
+    category: toStringSafe(row.category),
+    description: toStringSafe(row.description),
+    longDescription: toStringSafe(row.longDescription) || "",
+    spice: toSpice(row.spice),
+    allergens: toStringArray(row.allergens).map(
+      (x) => x.charAt(0).toUpperCase() + x.slice(1)
+    ),
+    halal: true, // always true as discussed
+    popular: toBool(row.popular),
+    weeklySpecial: toBool(row.weeklySpecial),
+    image: `/assets/food/${id}.jpg`,
+    available: toStringArray(row.available),
+    slots: toStringArray(row.slots),
+    sizes,
+  };
+}
+
+function mergeMenu(existing: any[], incoming: any[]) {
+  const map = new Map<string, any>();
+
+  // existing first
+  for (const item of existing) {
+    map.set(item.id, item);
+  }
+
+  // incoming overwrites by id
+  for (const item of incoming) {
+    map.set(item.id, item);
+  }
+
+  return Array.from(map.values());
+}
 
 function AdminPage() {
   const [input, setInput] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
 
-  const [rawRows, setRawRows] = useState<any[]>([]);
+  const [rawRows, setRawRows] = useState<Record<string, unknown>[]>([]);
+  const [fileName, setFileName] = useState("");
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -31,21 +152,6 @@ function AdminPage() {
       alert("Incorrect password");
     }
   }
-  function mergeMenu(existing: any[], incoming: any[]) {
-  const map = new Map<string, any>();
-
-  // Step 1: load existing
-  for (const item of existing) {
-    map.set(item.id, item);
-  }
-
-  // Step 2: overwrite or add
-  for (const item of incoming) {
-    map.set(item.id, item);
-  }
-
-  return Array.from(map.values());
-}
 
   function handleFile(file: File) {
     const reader = new FileReader();
@@ -57,12 +163,28 @@ function AdminPage() {
       const workbook = XLSX.read(data, { type: "binary" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      const json = XLSX.utils.sheet_to_json(sheet);
+      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+        defval: "",
+      });
+
       setRawRows(json);
+      setFileName(file.name);
     };
 
     reader.readAsBinaryString(file);
   }
+
+  const transformedRows = useMemo(() => {
+    return rawRows
+      .map(transformRowToMenuItem)
+      .filter((x): x is MenuItem => x !== null);
+  }, [rawRows]);
+
+  const mergedMenu = useMemo(() => {
+    if (transformedRows.length === 0) return [];
+
+    return mergeMenu(existingMenu as any[], transformedRows);
+  }, [transformedRows]);
 
   if (!authenticated) {
     return (
@@ -90,33 +212,51 @@ function AdminPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="text-3xl font-display">Menu Admin</h1>
 
       <p className="mt-4 text-muted-foreground">
-        Upload a new menu file here.
+        Upload an Excel file to preview transformed menu data and merged
+        <code className="ml-1 rounded bg-muted px-1 py-0.5">menu.json</code>.
       </p>
 
       <div className="mt-6 space-y-6">
-
-        {/* ✅ Upload box */}
+        {/* Upload box */}
         <div className="rounded-xl border border-border p-6">
+          <label className="block text-sm font-medium text-foreground">
+            Upload Excel (.xlsx)
+          </label>
+
           <input
             type="file"
             accept=".xlsx"
+            className="mt-3"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) handleFile(file);
             }}
           />
+
+          <div className="mt-4 text-xs text-muted-foreground">
+            Images are assumed from:
+            <code className="ml-1 rounded bg-muted px-1 py-0.5">
+              /assets/food/id.jpg
+            </code>
+          </div>
         </div>
 
-        {/* ✅ Preview */}
+        {/* Raw Excel preview */}
         {rawRows.length > 0 && (
           <div className="rounded-xl border border-border p-6">
-            <h2 className="text-lg font-medium mb-4">
-              Preview ({rawRows.length} rows)
+            <h2 className="mb-4 text-lg font-medium">
+              Excel preview ({rawRows.length} rows)
             </h2>
+
+            {fileName && (
+              <p className="mb-3 text-xs text-muted-foreground">
+                File: <strong>{fileName}</strong>
+              </p>
+            )}
 
             <div className="max-h-96 overflow-auto text-sm">
               <table className="w-full border">
@@ -139,7 +279,7 @@ function AdminPage() {
                       {Object.values(row).map((val: any, j) => (
                         <td
                           key={j}
-                          className="border px-2 py-1"
+                          className="border px-2 py-1 align-top"
                         >
                           {String(val)}
                         </td>
@@ -149,10 +289,47 @@ function AdminPage() {
                 </tbody>
               </table>
             </div>
-
           </div>
         )}
 
+        {/* Transformed JSON preview */}
+        {transformedRows.length > 0 && (
+          <div className="rounded-xl border border-border p-6">
+            <h2 className="text-lg font-medium">
+              Transformed menu preview
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              This is the JSON generated from your Excel rows.
+            </p>
+
+            <div className="mt-4 max-h-[36rem] overflow-auto rounded border bg-muted/20 p-4">
+              <pre className="text-xs whitespace-pre-wrap">
+                {JSON.stringify(transformedRows, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
+
+        {/* Final merged output */}
+        {mergedMenu.length > 0 && (
+          <div className="rounded-xl border border-border p-6">
+            <h2 className="text-lg font-medium">
+              Final merged menu.json preview
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              Existing items are updated by <strong>id</strong>. New items are
+              added.
+            </p>
+
+            <div className="mt-4 max-h-[36rem] overflow-auto rounded border bg-muted/20 p-4">
+              <pre className="text-xs whitespace-pre-wrap">
+                {JSON.stringify(mergedMenu, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
