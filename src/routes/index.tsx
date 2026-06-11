@@ -279,12 +279,21 @@ useEffect(() => {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
+  const selectedDayMenu = useMemo(() => {
+  return menu.filter((item: any) => {
+    // ✅ DAY match (existing logic)
+    const dayMatch =
+      item.available.includes("daily") ||
+      item.available.includes(selectedWeekday);
 
-  const selectedDayMenu = useMemo(
-    () => menu.filter((item) => isAvailable(item, selectedWeekday)),
-    [menu, selectedWeekday]
-  );
+    // ✅ SLOT match (new logic)
+    const slotMatch =
+      !item.slots || item.slots.length === 0 || item.slots.includes(selectedSlot);
 
+    return dayMatch && slotMatch;
+  });
+}, [menu, selectedWeekday, selectedSlot]);
+  
   const fullWeekMenu = useMemo(() => {
     return [...menu].sort((a, b) => {
       const aSelected = isAvailable(a, selectedWeekday) ? 1 : 0;
