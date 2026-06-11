@@ -359,8 +359,61 @@ useEffect(() => {
           </p>
         </div>
       </section>
+     
+      {/* DELIVERY DATE PICKER */}
+      <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+        <div className="text-xs uppercase tracking-[0.2em] text-primary">
+          Step 2 — Choose delivery date
+        </div>
 
-      {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
+        <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+          Plan your order
+        </h2>
+
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Pick a delivery day and we’ll show you what’s available.
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {dayOptions.map((day, index) => {
+            const todayClosed = index === 0 && sameDayClosed;
+
+            return (
+              <button
+                key={day.key}
+                type="button"
+                disabled={todayClosed}
+                onClick={() => setSelectedDateKey(day.key)}
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                  selectedDateKey === day.key
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:bg-secondary"
+                } ${todayClosed ? "cursor-not-allowed opacity-50" : ""}`}
+              >
+                {todayClosed ? "Today (closed)" : day.label}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* SELECTED DAY MENU */}
+      <Section
+        id="selected-day-menu"
+        title="Selected delivery menu"
+        subtitle={`Available for ${selectedDay.label}`}
+      >
+        {selectedDayMenu.length === 0 ? (
+          <Empty text={`No dishes available for ${selectedDay.label}.`} />
+        ) : (
+          <Grid>
+            {selectedDayMenu.map((dish) => (
+              <MealCard key={dish.id} item={dish as any} />
+            ))}
+          </Grid>
+        )}
+      </Section>
+       {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
       <section
         id="delivery-slot-section"
         className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
@@ -501,60 +554,6 @@ useEffect(() => {
           </div>
         </div>
       </section>
-
-      {/* DELIVERY DATE PICKER */}
-      <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
-        <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Step 2 — Choose delivery date
-        </div>
-
-        <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-          Plan your order
-        </h2>
-
-        <p className="mt-3 max-w-2xl text-muted-foreground">
-          Pick a delivery day and we’ll show you what’s available.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          {dayOptions.map((day, index) => {
-            const todayClosed = index === 0 && sameDayClosed;
-
-            return (
-              <button
-                key={day.key}
-                type="button"
-                disabled={todayClosed}
-                onClick={() => setSelectedDateKey(day.key)}
-                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                  selectedDateKey === day.key
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-foreground hover:bg-secondary"
-                } ${todayClosed ? "cursor-not-allowed opacity-50" : ""}`}
-              >
-                {todayClosed ? "Today (closed)" : day.label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* SELECTED DAY MENU */}
-      <Section
-        id="selected-day-menu"
-        title="Selected delivery menu"
-        subtitle={`Available for ${selectedDay.label}`}
-      >
-        {selectedDayMenu.length === 0 ? (
-          <Empty text={`No dishes available for ${selectedDay.label}.`} />
-        ) : (
-          <Grid>
-            {selectedDayMenu.map((dish) => (
-              <MealCard key={dish.id} item={dish as any} />
-            ))}
-          </Grid>
-        )}
-      </Section>
 
       {/* FULL WEEK MENU */}
       <section className="border-y border-border bg-card/50">
