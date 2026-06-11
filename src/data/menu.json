@@ -18,6 +18,10 @@
       "monday",
       "friday"
     ],
+    "slots": [
+      "lunch"
+      "dinner"
+    ],
     "sizes": [
       {
         "id": "quarter",
@@ -54,6 +58,10 @@
     "available": [
       "tuesday",
       "thursday"
+    ],
+     "slots": [
+      "lunch"
+      "dinner"
     ],
     "sizes": [
       {
@@ -93,6 +101,10 @@
       "wednesday",
       "friday"
     ],
+     "slots": [
+      "lunch"
+      "dinner"
+    ],
     "sizes": [
       {
         "id": "80g",
@@ -126,6 +138,10 @@
     "image": "/assets/food/boiled-rice.jpg",
     "available": [
       "daily"
+    ],
+     "slots": [
+      "lunch"
+      "dinner"
     ],
     "sizes": [
       {
