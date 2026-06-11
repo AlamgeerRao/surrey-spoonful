@@ -145,6 +145,33 @@
       }
     ]
   },
+{
+  "id": "lamb-shami-kababs",
+  "slug": "lamb-shami-kababs",
+  "name": "Lamb Shami Kababs",
+  "category": "starters",
+  "description": "Soft spiced lamb and lentil patties shallow fried",
+  "longDescription": "",
+  "spice": 2,
+  "allergens": ["Eggs"],
+  "halal": true,
+  "popular": true,
+  "weeklySpecial": false,
+  "image": "/assets/food/lamb-shami-kababs.jpg",
+  "available": ["daily"],
+  "slots": [
+      "breakfast",
+      "lunch",
+      "dinner"
+    ],
+  "sizes": [
+    {
+      "id": "2",
+      "label": "2 kababs",
+      "pricePence": 250
+    }
+  ]
+},
   {
     "id": "aloo-samosa",
     "slug": "aloo-samosa",
