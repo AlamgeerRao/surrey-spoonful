@@ -1,12 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import * as XLSX from "xlsx";
+import existingMenu from "@/data/menu.json";
+
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
 const ADMIN_PASSWORD = "zaiqa123";
+
+const mergedMenu = useMemo(() => {
+  if (transformedRows.length === 0) return [];
+
+  return mergeMenu(existingMenu as any[], transformedRows);
+}, [transformedRows]);
 
 function AdminPage() {
   const [input, setInput] = useState("");
@@ -23,6 +31,21 @@ function AdminPage() {
       alert("Incorrect password");
     }
   }
+  function mergeMenu(existing: any[], incoming: any[]) {
+  const map = new Map<string, any>();
+
+  // Step 1: load existing
+  for (const item of existing) {
+    map.set(item.id, item);
+  }
+
+  // Step 2: overwrite or add
+  for (const item of incoming) {
+    map.set(item.id, item);
+  }
+
+  return Array.from(map.values());
+}
 
   function handleFile(file: File) {
     const reader = new FileReader();
