@@ -54,10 +54,56 @@ function AdminPage() {
         Upload a new menu file here.
       </p>
 
-      {/* ✅ Next phase will go here */}
-      <div className="mt-6 rounded-xl border p-6">
-        <p className="text-sm">Excel upload coming next…</p>
+   <div className="mt-6 space-y-6">
+
+  {/* ✅ Upload box */}
+  <div className="rounded-xl border border-border p-6">
+    <input
+      type="file"
+      accept=".xlsx"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleFile(file);
+      }}
+    />
+  </div>
+
+  {/* ✅ Preview */}
+  {rawRows.length > 0 && (
+    <div className="rounded-xl border border-border p-6">
+      <h2 className="text-lg font-medium mb-4">
+        Preview ({rawRows.length} rows)
+      </h2>
+
+      <div className="max-h-96 overflow-auto text-sm">
+        <table className="w-full border">
+          <thead>
+            <tr>
+              {Object.keys(rawRows[0]).map((key) => (
+                <th key={key} className="border px-2 py-1 text-left">
+                  {key}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {rawRows.slice(0, 10).map((row, i) => (
+              <tr key={i}>
+                {Object.values(row).map((val: any, j) => (
+                  <td key={j} className="border px-2 py-1">
+                    {String(val)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
     </div>
+  )}
+
+</div>
   );
 }
