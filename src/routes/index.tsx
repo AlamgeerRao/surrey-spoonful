@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Clock, Leaf, ShieldCheck, Truck } from "lucide-react";
+import { Clock, Leaf, ShieldCheck, Truck, Calendar, Clock3 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -404,45 +404,50 @@ useEffect(() => {
   subtitle={`Available for ${selectedDay.label}`}
 >
 
-  {/* ✅ DELIVERY SUMMARY BAR (POLISHED) */}
-  {selectedSlot && (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+  {/* ✅ DELIVERY SUMMARY BAR (POLISHED WITH ICONS) */}
+{selectedSlot && (
+  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm">
 
-      {/* LEFT SIDE */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+    {/* LEFT SIDE */}
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
 
-        {/* DATE */}
-        <div className="flex items-center gap-1">
-          <span className="text-muted-foreground">📅</span>
-          <span className="font-medium">
-            {selectedDay.label} ({new Date(selectedDay.key).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})
-          </span>
-        </div>
-
-        {/* SLOT */}
-        <div className="flex items-center gap-1">
-          <span className="text-muted-foreground">🕒</span>
-          <span className="font-medium">
-            {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-          </span>
-        </div>
-
+      {/* DATE */}
+      <div className="flex items-center gap-1">
+        <Calendar className="h-4 w-4 text-muted-foreground" />
+        <span className="font-medium">
+          {selectedDay.label} (
+          {new Date(selectedDay.key).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+          })}
+          )
+        </span>
       </div>
 
-      {/* RIGHT SIDE */}
-      <button
-        onClick={() => {
-          document
-            .getElementById("delivery-slot-section")
-            ?.scrollIntoView({ behavior: "smooth" });
-        }}
-        className="text-sm font-medium text-primary hover:underline"
-      >
-        Change
-      </button>
-    </div>
-  )}
+      {/* SLOT */}
+      <div className="flex items-center gap-1">
+        <Clock3 className="h-4 w-4 text-muted-foreground" />
+        <span className="font-medium">
+          {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+        </span>
+      </div>
 
+    </div>
+
+    {/* RIGHT SIDE */}
+    <button
+      onClick={() => {
+        document
+          .getElementById("delivery-slot-section")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }}
+      className="text-sm font-medium text-primary hover:underline"
+    >
+      Change
+    </button>
+
+  </div>
+)}
   {selectedDayMenu.length === 0 ? (
     <Empty text={`No dishes available for ${selectedDay.label}.`} />
   ) : (
