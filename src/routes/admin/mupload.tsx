@@ -24,7 +24,6 @@ function AdminPage() {
     }
   }
 
-  ✅ ✅ ✅ ADD THIS FUNCTION
   function handleFile(file: File) {
     const reader = new FileReader();
 
