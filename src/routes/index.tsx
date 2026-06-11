@@ -342,18 +342,18 @@ const [selectedSlot, setSelectedSlotState] = useState<
       
             {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* LEFT */}
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
-              Delivery
+             Step 1 — Delivery
             </div>
             
            <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-  Step 1 — Choose your delivery slot
+   Choose your delivery slot
 </h2>      
 
-            <p className="mt-4 max-w-xl text-muted-foreground">
+            <p className="mt-3 max-w-xl text-muted-foreground">
               Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery. 
               Two daily slots — Lunch and Dinner, plus Weekend Breakfast.
               orders close{" "} before each slot.
@@ -388,7 +388,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                     type="button"
                     disabled={!slot.available}
                     onClick={() => setSelectedSlot(slot.id)}
-                    className={`rounded-2xl border p-5 text-left transition-colors ${
+                    className={`rounded-2xl border p-4 text-left transition-colors ${
                       selectedSlot === slot.id
                         ? "border-primary bg-primary/10"
                         : "border-border bg-card"
@@ -400,7 +400,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-display text-lg text-foreground">
+                        <div className="font-display text-base sm:text-lg text-foreground">
                           {slot.title}
                         </div>
                         <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -438,7 +438,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                     type="button"
                     disabled={!slot.available}
                     onClick={() => setSelectedSlot(slot.id)}
-                    className={`w-full rounded-2xl border p-5 text-left transition-colors ${
+                    className={`w-full rounded-2xl border p-4 text-left transition-colors ${
                       selectedSlot === slot.id
                         ? "border-primary bg-primary/10"
                         : "border-border bg-card"
@@ -450,7 +450,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-display text-lg text-foreground">
+                        <div className="font-display text-base sm:text-lg text-foreground">
                           {slot.title}
                         </div>
                         <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -536,7 +536,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
 
       {/* FULL WEEK MENU */}
       <section className="border-y border-border bg-card/50">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
               Full week menu
@@ -557,7 +557,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
               return (
                 <div
                   key={dish.id}
-                  className={`rounded-2xl border p-5 transition-colors ${
+                  className={`rounded-2xl border p-4 transition-colors ${
                     selectedAvailable
                       ? "border-primary bg-primary/5"
                       : "border-border bg-background"
