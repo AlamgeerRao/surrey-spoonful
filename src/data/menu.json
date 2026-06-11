@@ -7,37 +7,17 @@
     "description": "Tomato, ginger, green chilli — wok-fired with crushed coriander.",
     "longDescription": "Our signature karahi — bone-in chicken seared in mustard oil with vine-ripened tomatoes, julienne ginger and fresh green chilli.",
     "spice": 2,
-    "allergens": [
-      "Dairy"
-    ],
+    "allergens": ["Dairy"],
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
     "image": "/assets/food/chicken-karahi.jpg",
-    "available": [
-      "monday",
-      "friday"
-    ],
-    "slots": [
-      "lunch"
-      "dinner"
-    ],
+    "available": ["monday", "friday"],
+    "slots": ["lunch", "dinner"],
     "sizes": [
-      {
-        "id": "quarter",
-        "label": "Quarter (250g)",
-        "pricePence": 660
-      },
-      {
-        "id": "half",
-        "label": "Half (500g)",
-        "pricePence": 1210
-      },
-      {
-        "id": "full",
-        "label": "Full (1kg)",
-        "pricePence": 2200
-      }
+      { "id": "quarter", "label": "Quarter (250g)", "pricePence": 660 },
+      { "id": "half", "label": "Half (500g)", "pricePence": 1210 },
+      { "id": "full", "label": "Full (1kg)", "pricePence": 2200 }
     ]
   },
   {
@@ -48,37 +28,17 @@
     "description": "Slow-cooked lamb in a fiery tomato & ginger masala.",
     "longDescription": "Diced shoulder of lamb cooked low and slow until fork-tender.",
     "spice": 2,
-    "allergens": [
-      "Dairy"
-    ],
+    "allergens": ["Dairy"],
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
     "image": "/assets/food/lamb-karahi.jpg",
-    "available": [
-      "tuesday",
-      "thursday"
-    ],
-     "slots": [
-      "lunch"
-      "dinner"
-    ],
+    "available": ["tuesday", "thursday"],
+    "slots": ["lunch", "dinner"],
     "sizes": [
-      {
-        "id": "quarter",
-        "label": "Quarter (250g)",
-        "pricePence": 840
-      },
-      {
-        "id": "half",
-        "label": "Half (500g)",
-        "pricePence": 1540
-      },
-      {
-        "id": "full",
-        "label": "Full (1kg)",
-        "pricePence": 2800
-      }
+      { "id": "quarter", "label": "Quarter (250g)", "pricePence": 840 },
+      { "id": "half", "label": "Half (500g)", "pricePence": 1540 },
+      { "id": "full", "label": "Full (1kg)", "pricePence": 2800 }
     ]
   },
   {
@@ -89,38 +49,17 @@
     "description": "Layered basmati with slow-cooked chicken.",
     "longDescription": "Sindhi-style dum biryani.",
     "spice": 2,
-    "allergens": [
-      "Dairy",
-      "Nuts"
-    ],
+    "allergens": ["Dairy", "Nuts"],
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
     "image": "/assets/food/chicken-biryani.jpg",
-    "available": [
-      "wednesday",
-      "friday"
-    ],
-     "slots": [
-      "lunch"
-      "dinner"
-    ],
+    "available": ["wednesday", "friday"],
+    "slots": ["lunch", "dinner"],
     "sizes": [
-      {
-        "id": "80g",
-        "label": "Small (80g)",
-        "pricePence": 380
-      },
-      {
-        "id": "160g",
-        "label": "Medium (160g)",
-        "pricePence": 665
-      },
-      {
-        "id": "320g",
-        "label": "Large (320g)",
-        "pricePence": 950
-      }
+      { "id": "80g", "label": "Small (80g)", "pricePence": 380 },
+      { "id": "160g", "label": "Medium (160g)", "pricePence": 665 },
+      { "id": "320g", "label": "Large (320g)", "pricePence": 950 }
     ]
   },
   {
@@ -136,58 +75,33 @@
     "popular": false,
     "weeklySpecial": false,
     "image": "/assets/food/boiled-rice.jpg",
-    "available": [
-      "daily"
-    ],
-     "slots": [
-      "lunch"
-      "dinner"
-    ],
+    "available": ["daily"],
+    "slots": ["lunch", "dinner"],
     "sizes": [
-      {
-        "id": "80g",
-        "label": "Small (80g)",
-        "pricePence": 200
-      },
-      {
-        "id": "160g",
-        "label": "Medium (160g)",
-        "pricePence": 350
-      },
-      {
-        "id": "320g",
-        "label": "Large (320g)",
-        "pricePence": 500
-      }
+      { "id": "80g", "label": "Small (80g)", "pricePence": 200 },
+      { "id": "160g", "label": "Medium (160g)", "pricePence": 350 },
+      { "id": "320g", "label": "Large (320g)", "pricePence": 500 }
     ]
   },
-{
-  "id": "lamb-shami-kababs",
-  "slug": "lamb-shami-kababs",
-  "name": "Lamb Shami Kababs",
-  "category": "starters",
-  "description": "Soft spiced lamb and lentil patties shallow fried",
-  "longDescription": "",
-  "spice": 2,
-  "allergens": ["Eggs"],
-  "halal": true,
-  "popular": true,
-  "weeklySpecial": false,
-  "image": "/assets/food/lamb-shami-kababs.jpg",
-  "available": ["daily"],
-  "slots": [
-      "breakfast",
-      "lunch",
-      "dinner"
-    ],
-  "sizes": [
-    {
-      "id": "2",
-      "label": "2 kababs",
-      "pricePence": 250
-    }
-  ]
-},
+  {
+    "id": "lamb-shami-kababs",
+    "slug": "lamb-shami-kababs",
+    "name": "Lamb Shami Kababs",
+    "category": "starters",
+    "description": "Soft spiced lamb and lentil patties shallow fried",
+    "longDescription": "",
+    "spice": 2,
+    "allergens": ["Eggs"],
+    "halal": true,
+    "popular": true,
+    "weeklySpecial": false,
+    "image": "/assets/food/lamb-shami-kababs.jpg",
+    "available": ["daily"],
+    "slots": ["breakfast", "lunch", "dinner"],
+    "sizes": [
+      { "id": "2", "label": "2 kababs", "pricePence": 250 }
+    ]
+  },
   {
     "id": "aloo-samosa",
     "slug": "aloo-samosa",
@@ -196,37 +110,17 @@
     "description": "Crispy fried pastry filled with spiced potato",
     "longDescription": "",
     "spice": 2,
-    "allergens": [
-      "Gluten"
-    ],
+    "allergens": ["Gluten"],
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
     "image": "/assets/food/aloo-samosa.jpg",
-    "available": [
-      "daily"
-    ],
-    "slots": [
-      "breakfast",
-      "lunch",
-      "dinner"
-    ],
+    "available": ["daily"],
+    "slots": ["breakfast", "lunch", "dinner"],
     "sizes": [
-      {
-        "id": "4",
-        "label": "4 pieces",
-        "pricePence": 360
-      },
-      {
-        "id": "8",
-        "label": "8 pieces",
-        "pricePence": 720
-      },
-      {
-        "id": "12",
-        "label": "12 pieces",
-        "pricePence": 1080
-      }
+      { "id": "4", "label": "4 pieces", "pricePence": 360 },
+      { "id": "8", "label": "8 pieces", "pricePence": 720 },
+      { "id": "12", "label": "12 pieces", "pricePence": 1080 }
     ]
   },
   {
@@ -237,24 +131,16 @@
     "description": "Fresh omelette served with two parathas and pickle",
     "longDescription": "",
     "spice": 1,
-    "allergens": [
-      "Eggs",
-      "Gluten"
-    ],
+    "allergens": ["Eggs", "Gluten"],
     "halal": true,
     "popular": true,
     "weeklySpecial": false,
     "image": "/assets/food/omelette-paratha.jpg",
-    "available": [
-      "saturday",
-      "sunday"
-    ],
-    "slots": [
-      "breakfast"
-    ],
+    "available": ["saturday", "sunday"],
+    "slots": ["breakfast"],
     "sizes": [
       {
-        "id": "breakfast",
+        "id": "standard",
         "label": "Omelette + 2 Parathas + Pickle",
         "pricePence": 100
       }
