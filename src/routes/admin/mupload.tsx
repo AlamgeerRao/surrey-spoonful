@@ -103,7 +103,5 @@ function AdminPage() {
 
     </div>
   )}
-
-</div>
   );
 }
