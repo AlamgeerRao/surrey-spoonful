@@ -292,24 +292,64 @@ function AdminPage() {
           </div>
         )}
 
-        {/* Transformed JSON preview */}
-        {transformedRows.length > 0 && (
-          <div className="rounded-xl border border-border p-6">
-            <h2 className="text-lg font-medium">
-              Transformed menu preview
-            </h2>
+{/* Transformed JSON preview */}
+{transformedRows.length > 0 && (
+  <div className="rounded-xl border border-border p-6">
+    <h2 className="text-lg font-medium">
+      Transformed menu preview
+    </h2>
 
-            <p className="mt-2 text-sm text-muted-foreground">
-              This is the JSON generated from your Excel rows.
-            </p>
+    <p className="mt-2 text-sm text-muted-foreground">
+      New items are highlighted in green. Existing items that will be overwritten by the same <strong>id</strong> are highlighted in amber.
+    </p>
 
-            <div className="mt-4 max-h-[36rem] overflow-auto rounded border bg-muted/20 p-4">
+    <div className="mt-4 space-y-4">
+      {transformedRows.map((item) => {
+        const exists = (existingMenu as any[]).some((m) => m.id === item.id);
+
+        return (
+          <div
+            key={item.id}
+            className={`rounded-xl border p-4 ${
+              exists
+                ? "border-amber-300 bg-amber-50"
+                : "border-emerald-300 bg-emerald-50"
+            }`}
+          >
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="font-medium text-foreground">
+                  {item.name} ({item.id})
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {exists
+                    ? "This item already exists in menu.json and will be updated"
+                    : "This is a new item and will be added"}
+                </div>
+              </div>
+
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  exists
+                    ? "bg-amber-200 text-amber-900"
+                    : "bg-emerald-200 text-emerald-900"
+                }`}
+              >
+                {exists ? "Updated" : "New"}
+              </span>
+            </div>
+
+            <div className="max-h-80 overflow-auto rounded border bg-white/70 p-3">
               <pre className="text-xs whitespace-pre-wrap">
-                {JSON.stringify(transformedRows, null, 2)}
+                {JSON.stringify(item, null, 2)}
               </pre>
             </div>
           </div>
-        )}
+        );
+      })}
+    </div>
+  </div>
+)}
 
         {/* Final merged output */}
         {mergedMenu.length > 0 && (
