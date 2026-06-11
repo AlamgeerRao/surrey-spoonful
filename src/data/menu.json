@@ -146,36 +146,6 @@
     ]
   },
   {
-    "id": "halwa-puri",
-    "slug": "halwa-puri",
-    "name": "Halwa Puri",
-    "category": "breakfast",
-    "description": "Traditional weekend breakfast",
-    "longDescription": "",
-    "spice": 1,
-    "allergens": [
-      "Gluten"
-    ],
-    "halal": true,
-    "popular": true,
-    "weeklySpecial": true,
-    "image": "/assets/food/halwa-puri.jpg",
-    "available": [
-      "saturday",
-      "sunday"
-    ],
-    "slots": [
-      "breakfast"
-    ],
-    "sizes": [
-      {
-        "id": "standard",
-        "label": "Plate + 3Puris",
-        "pricePence": 850
-      }
-    ]
-  },
-  {
     "id": "aloo-samosa",
     "slug": "aloo-samosa",
     "name": "Aloo Samosa",
@@ -213,6 +183,37 @@
         "id": "12",
         "label": "12 pieces",
         "pricePence": 1080
+      }
+    ]
+  },
+  {
+    "id": "omelette-paratha",
+    "slug": "omelette-paratha",
+    "name": "Omelette + 2 Parathas + Pickle",
+    "category": "breakfast",
+    "description": "Fresh omelette served with two parathas and pickle",
+    "longDescription": "",
+    "spice": 1,
+    "allergens": [
+      "Eggs",
+      "Gluten"
+    ],
+    "halal": true,
+    "popular": true,
+    "weeklySpecial": false,
+    "image": "/assets/food/omelette-paratha.jpg",
+    "available": [
+      "saturday",
+      "sunday"
+    ],
+    "slots": [
+      "breakfast"
+    ],
+    "sizes": [
+      {
+        "id": "breakfast",
+        "label": "Omelette + 2 Parathas + Pickle",
+        "pricePence": 100
       }
     ]
   }
