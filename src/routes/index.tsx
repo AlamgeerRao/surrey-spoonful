@@ -294,7 +294,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
           <div className="absolute inset-0 bg-black/45" />
         </div>
 
-        <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-20 sm:min-h-[82vh] sm:px-6">
+        className="mx-auto flex min-h-[55vh] max-w-6xl flex-col justify-center px-4 py-14 sm:min-h-[60vh] sm:px-6"
           {/* HERO TRUST BAR */}
           <div className="mb-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
             <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
@@ -324,7 +324,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
             Home‑cooked Pakistani food, delivered with love.
           </h1>
 
-          <p className="mt-5 max-w-2xl text-base text-white/90 sm:text-lg">
+          <p className="mt-4 max-w-2xl text-base text-white/90 sm:text-lg">
             Bringing our family kitchen to{" "}
             <span className="underline decoration-saffron decoration-2 underline-offset-4">
               Byfleet, West Byfleet, Woking & Weybridge
@@ -332,18 +332,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
             .
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="rounded-full border-white/40 bg-white/10 px-6 text-white backdrop-blur hover:bg-white/20 hover:text-white"
-            >
-              <Link to="/about">Our story</Link>
-            </Button>
-          </div>
-
-          <p className="mt-6 max-w-2xl text-sm text-white/85 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm text-white/85 sm:text-base">
             For any event or gathering, we can provide freshly prepared
             home‑cooked food. Message us on WhatsApp to discuss your
             requirements.
@@ -352,22 +341,22 @@ const [selectedSlot, setSelectedSlotState] = useState<
       </section>
       
             {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* LEFT */}
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
               Delivery
             </div>
-
-            <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-              We bring it straight to your door.
-            </h2>
+            
+           <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+  Step 1 — Choose your delivery slot
+</h2>      
 
             <p className="mt-4 max-w-xl text-muted-foreground">
-              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery across our zones.
-              Two daily slots — Lunch and Dinner, plus Weekend Breakfast. Place
-              orders at least{" "}
+              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery. 
+              Two daily slots — Lunch and Dinner, plus Weekend Breakfast.
+              orders close{" "} before each slot.
               <strong className="text-foreground">2 hours</strong> before your
               slot.
             </p>
@@ -492,9 +481,9 @@ const [selectedSlot, setSelectedSlotState] = useState<
         </div>
       </section>
         {/* DELIVERY DATE PICKER */}
-      <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Choose delivery date
+          Step 2 — Choose delivery date
         </div>
 
         <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
