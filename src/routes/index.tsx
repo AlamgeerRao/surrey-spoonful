@@ -362,8 +362,34 @@ useEffect(() => {
      
       {/* DELIVERY DATE PICKER */}
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+       {/* ✅ DELIVERY SUMMARY BAR (INLINE) */}
+{selectedSlot && (
+  <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card px-3 py-2 text-sm">
+
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="text-muted-foreground">📅</span>
+      <span className="font-medium">{selectedDay.label}</span>
+
+      <span className="text-muted-foreground">🕒</span>
+      <span className="font-medium">
+        {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+      </span>
+    </div>
+
+    <button
+      onClick={() => {
+        document
+          .getElementById("delivery-slot-section")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }}
+      className="text-sm font-medium text-primary hover:underline"
+    >
+      Change slot
+    </button>
+  </div>
+)}
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
-          Step 2 — Choose delivery date
+          Step 1 — Choose delivery date
         </div>
 
         <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
@@ -400,7 +426,7 @@ useEffect(() => {
       {/* SELECTED DAY MENU */}
       <Section
         id="selected-day-menu"
-        title="Selected delivery menu"
+        title="Step 2 - Select delivery menu"
         subtitle={`Available for ${selectedDay.label}`}
       >
         {selectedDayMenu.length === 0 ? (
@@ -422,7 +448,7 @@ useEffect(() => {
           {/* LEFT */}
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
-              Step 1 — Delivery
+              Step 3 — Delivery
             </div>
 
             <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
@@ -632,39 +658,6 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* STICKY DELIVERY SUMMARY */}
-      {showStickyBar && (
-        <div className="fixed left-0 right-0 top-16 z-40 border-b border-border bg-background/95 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6">
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground">📅</span>
-                <span className="font-medium">{selectedDay.label}</span>
-              </div>
-
-              {selectedSlot && (
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">🕒</span>
-                  <span className="font-medium">
-                    {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => {
-                document
-                  .getElementById("delivery-slot-section")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              Change
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 }
