@@ -70,8 +70,6 @@ type SlotTile = {
   reason?: string;
 };
 
-const DELIVERY_SLOT_STORAGE_KEY = "hpk_selected_delivery_slot";
-
 function getWeekdayName(date: Date) {
   return date
     .toLocaleDateString("en-GB", { weekday: "long" })
@@ -159,7 +157,6 @@ function getSlotTiles(
   const isSameDay = selectedDateKey === todayKey;
   const weekend = isWeekendWeekday(selectedWeekday);
 
-  // ✅ Breakfast cutoff now 08:00
   const breakfastAvailable =
     weekend && (!isSameDay || nowMinutes < 8 * 60);
 
@@ -217,16 +214,24 @@ function HomePage() {
   const [selectedDateKey, setSelectedDateKey] = useState(
     () => getInitialSelectedDateKey(dayOptions)
   );
+
+  const [selectedSlot, setSelectedSlotState] = useState<
+    "breakfast" | "lunch" | "dinner" | null
+  >(() => getSelectedDeliverySlot() as any);
+
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
   function setSelectedSlot(slot: "breakfast" | "lunch" | "dinner") {
-  setSelectedSlotState(slot);        // ✅ updates UI
-  setSelectedDeliverySlot(slot);     // ✅ saves globally
-}
+    setSelectedSlotState(slot);
+    setSelectedDeliverySlot(slot);
+  }
 
   const selectedDay = useMemo(() => {
     return dayOptions.find((d) => d.key === selectedDateKey) || dayOptions[0];
   }, [dayOptions, selectedDateKey]);
 
   const selectedWeekday = selectedDay.weekday;
+
   const deliverySlots = useMemo(
     () => getSlotTiles(selectedDateKey, selectedWeekday),
     [selectedDateKey, selectedWeekday]
@@ -235,31 +240,46 @@ function HomePage() {
   const { minutes } = getUkNowParts();
   const sameDayClosed = minutes >= 15 * 60;
 
-const [selectedSlot, setSelectedSlotState] = useState<
-  "breakfast" | "lunch" | "dinner" | null
->(() => getSelectedDeliverySlot() as any);
-
-  // Keep delivery date in sync for basket/checkout
   useEffect(() => {
     setSelectedDeliveryDate(selectedDateKey);
   }, [selectedDateKey]);
+useEffect(() => {
+    if (!selectedSlot) return;
+
+    const stillValid = deliverySlots.some(
+      (s) => s.id === selectedSlot && s.available
+    );
+
+    if (!stillValid) {
+      const firstAvailable = deliverySlots.find((s) => s.available);
+
+      if (firstAvailable) {
+        setSelectedSlot(firstAvailable.id);
+      }
+    }
+  }, [deliverySlots]);
 
   useEffect(() => {
-  if (!selectedSlot) return;
+    function onScroll() {
+      const slotSection = document.getElementById("delivery-slot-section");
+      if (!slotSection) return;
 
-  const stillValid = deliverySlots.some(
-    (s) => s.id === selectedSlot && s.available
-  );
+      const triggerPoint =
+        slotSection.offsetTop + slotSection.offsetHeight - 140;
 
-  if (!stillValid) {
-    const firstAvailable = deliverySlots.find((s) => s.available);
-
-    if (firstAvailable) {
-      setSelectedSlot(firstAvailable.id);
+      setShowStickyBar(window.scrollY > triggerPoint);
     }
-  }
-}, [deliverySlots]);
-  
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   const selectedDayMenu = useMemo(
     () => menu.filter((item) => isAvailable(item, selectedWeekday)),
     [menu, selectedWeekday]
@@ -339,35 +359,37 @@ const [selectedSlot, setSelectedSlotState] = useState<
           </p>
         </div>
       </section>
-      
-            {/* DELIVERY INFO + CLICKABLE SLOT TILES (MOVED ABOVE FULL WEEK MENU) */}
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+
+      {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
+      <section
+        id="delivery-slot-section"
+        className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
+      >
         <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* LEFT */}
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
-             Step 1 — Delivery
+              Step 1 — Delivery
             </div>
-            
-           <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-   Choose your delivery slot
-</h2>      
 
-            <p className="mt-3 max-w-xl text-muted-foreground">
-              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery. 
-              Two daily slots — Lunch and Dinner, plus Weekend Breakfast.
-              orders close{" "} before each slot.
+            <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+              Choose your delivery slot
+            </h2>
+
+            <p className="mt-2 max-w-xl text-muted-foreground">
+              Flat {formatPrice(DELIVERY_FEE_PENCE)} delivery. Two daily slots —
+              Lunch and Dinner, plus Weekend Breakfast. Orders close{" "}
               <strong className="text-foreground">2 hours</strong> before your
               slot.
             </p>
 
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               Showing slot availability for{" "}
               <strong className="text-foreground">{selectedDay.label}</strong>.
             </p>
 
             {selectedSlot && (
-              <p className="mt-3 text-sm text-foreground">
+              <p className="mt-2 text-sm text-foreground">
                 Selected slot:{" "}
                 <strong>
                   {deliverySlots.find((s) => s.id === selectedSlot)?.title}
@@ -400,7 +422,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-display text-base sm:text-lg text-foreground">
+                        <div className="font-display text-base text-foreground sm:text-lg">
                           {slot.title}
                         </div>
                         <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -427,8 +449,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                   </button>
                 ))}
             </div>
-
-            {/* Breakfast on separate row */}
+{/* Breakfast on separate row */}
             <div className="mt-3">
               {deliverySlots
                 .filter((slot) => slot.id === "breakfast")
@@ -450,7 +471,7 @@ const [selectedSlot, setSelectedSlotState] = useState<
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-display text-base sm:text-lg text-foreground">
+                        <div className="font-display text-base text-foreground sm:text-lg">
                           {slot.title}
                         </div>
                         <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -480,8 +501,9 @@ const [selectedSlot, setSelectedSlotState] = useState<
           </div>
         </div>
       </section>
-        {/* DELIVERY DATE PICKER */}
-      <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+
+      {/* DELIVERY DATE PICKER */}
+      <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
           Step 2 — Choose delivery date
         </div>
@@ -610,6 +632,40 @@ const [selectedSlot, setSelectedSlotState] = useState<
           </div>
         </div>
       </section>
+
+      {/* STICKY DELIVERY SUMMARY */}
+      {showStickyBar && (
+        <div className="fixed left-0 right-0 top-16 z-40 border-b border-border bg-background/95 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6">
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">📅</span>
+                <span className="font-medium">{selectedDay.label}</span>
+              </div>
+
+              {selectedSlot && (
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">🕒</span>
+                  <span className="font-medium">
+                    {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                document
+                  .getElementById("delivery-slot-section")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
