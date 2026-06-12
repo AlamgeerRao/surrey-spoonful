@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { DELIVERY_AREAS } from "@/lib/delivery";
+
 
 export function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-border/60 bg-card">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <div className="font-display text-xl text-foreground">
             ZAIQAS
@@ -27,18 +27,7 @@ export function SiteFooter() {
             <span aria-hidden>✦</span> 100% Halal certified
           </div>
         </div>
-
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            We deliver to
-          </div>
-          <ul className="mt-3 space-y-2 text-sm text-foreground">
-            {DELIVERY_AREAS.map((a) => (
-              <li key={a.name}>{a.name}</li>
-            ))}
-          </ul>
-        </div>
-
+        
         <div>
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Information
