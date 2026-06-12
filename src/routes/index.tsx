@@ -279,21 +279,12 @@ useEffect(() => {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
-  const selectedDayMenu = useMemo(() => {
-  return menu.filter((item: any) => {
-    // ✅ DAY match (existing logic)
-    const dayMatch =
-      item.available.includes("daily") ||
-      item.available.includes(selectedWeekday);
 
-    // ✅ SLOT match (new logic)
-    const slotMatch =
-      !item.slots || item.slots.length === 0 || item.slots.includes(selectedSlot);
+  const selectedDayMenu = useMemo(
+    () => menu.filter((item) => isAvailable(item, selectedWeekday)),
+    [menu, selectedWeekday]
+  );
 
-    return dayMatch && slotMatch;
-  });
-}, [menu, selectedWeekday, selectedSlot]);
-  
   const fullWeekMenu = useMemo(() => {
     return [...menu].sort((a, b) => {
       const aSelected = isAvailable(a, selectedWeekday) ? 1 : 0;
@@ -406,76 +397,7 @@ useEffect(() => {
         </div>
       </section>
 
-  {/* SELECTED DAY MENU */}
-<Section
-  id="selected-day-menu"
-  title="Step 2 - Select delivery menu"
-  subtitle={`Available for ${selectedDay.label}`}
->
-
- {/* ✅ DELIVERY SUMMARY BAR (ALWAYS VISIBLE) */}
-<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-
-  {/* LEFT SIDE */}
-  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-
-    {/* DATE */}
-    <div className="flex items-center gap-1">
-      <span className="text-muted-foreground">📅</span>
-      <span className="font-medium">
-        {selectedDay.label} (
-        {new Date(selectedDay.key).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-        })}
-        )
-      </span>
-    </div>
-
-    {/* SLOT */}
-    <div className="flex items-center gap-1">
-      <span className="text-muted-foreground">🕒</span>
-
-      {selectedSlot ? (
-        <span className="font-medium">
-          {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-        </span>
-      ) : (
-        <span className="text-amber-600 font-medium">
-          Select a delivery slot
-        </span>
-      )}
-    </div>
-
-  </div>
-
-  {/* RIGHT SIDE */}
-  <button
-    onClick={() => {
-      document
-        .getElementById("delivery-slot-section")
-        ?.scrollIntoView({ behavior: "smooth" });
-    }}
-    className="text-sm font-medium text-primary hover:underline"
-  >
-    Change
-  </button>
-
-</div>
-
-  {selectedDayMenu.length === 0 ? (
-    <Empty text={`No dishes available for ${selectedDay.label}.`} />
-  ) : (
-    <Grid>
-      {selectedDayMenu.map((dish) => (
-        <MealCard key={dish.id} item={dish as any} />
-      ))}
-    </Grid>
-  )}
-
-</Section>
-
-       {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
+    {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
       <section
         id="delivery-slot-section"
         className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
@@ -484,7 +406,7 @@ useEffect(() => {
           {/* LEFT */}
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-primary">
-              Step 3 — Delivery
+              Step 2 — Select an Available Delivery Slot
             </div>
 
             <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
@@ -617,6 +539,75 @@ useEffect(() => {
         </div>
       </section>
 
+  {/* SELECTED DAY MENU */}
+<Section
+  id="selected-day-menu"
+  title="Step 3 - Select delivery menu"
+  subtitle={`Available for ${selectedDay.label}`}
+>
+
+ {/* ✅ DELIVERY SUMMARY BAR (ALWAYS VISIBLE) */}
+<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+
+  {/* LEFT SIDE */}
+  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+
+    {/* DATE */}
+    <div className="flex items-center gap-1">
+      <span className="text-muted-foreground">📅</span>
+      <span className="font-medium">
+        {selectedDay.label} (
+        {new Date(selectedDay.key).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        })}
+        )
+      </span>
+    </div>
+
+    {/* SLOT */}
+    <div className="flex items-center gap-1">
+      <span className="text-muted-foreground">🕒</span>
+
+      {selectedSlot ? (
+        <span className="font-medium">
+          {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+        </span>
+      ) : (
+        <span className="text-amber-600 font-medium">
+          Select a delivery slot
+        </span>
+      )}
+    </div>
+
+  </div>
+
+  {/* RIGHT SIDE */}
+  <button
+    onClick={() => {
+      document
+        .getElementById("delivery-slot-section")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }}
+    className="text-sm font-medium text-primary hover:underline"
+  >
+    Change
+  </button>
+
+</div>
+
+  {selectedDayMenu.length === 0 ? (
+    <Empty text={`No dishes available for ${selectedDay.label}.`} />
+  ) : (
+    <Grid>
+      {selectedDayMenu.map((dish) => (
+        <MealCard key={dish.id} item={dish as any} />
+      ))}
+    </Grid>
+  )}
+
+</Section>
+   
       {/* FULL WEEK MENU */}
       <section className="border-y border-border bg-card/50">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
