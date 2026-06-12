@@ -399,7 +399,7 @@ useEffect(() => {
 {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
 <section
   id="delivery-slot-section"
-  className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
+  className="mx-auto max-w-6xl px-4 pt-10 pb-4 sm:px-6"
 >
   {/* HEADER */}
   <div>
@@ -501,6 +501,7 @@ useEffect(() => {
   id="selected-day-menu"
   title="Step 3 - Select delivery menu"
   subtitle={`Available for ${selectedDay.label}`}
+  className="pt-4"
 >
 
  {/* ✅ DELIVERY SUMMARY BAR (ALWAYS VISIBLE) */}
