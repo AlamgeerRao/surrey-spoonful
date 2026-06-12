@@ -7,6 +7,9 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="font-display text-xl text-foreground">
+            ZAIQAS
+          </div>
+          <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Homemade Pakistani Kitchen
           </div>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
@@ -52,7 +55,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6">
-          <span>© {new Date().getFullYear()} Homemade Pakistani Kitchen. Made with love in Surrey.</span>
+          <span>© {new Date().getFullYear()} Zaiqas — Homemade Pakistani Kitchen. Made with love in Surrey.</span>
           <span>Allergen disclaimer: prepared in a kitchen handling nuts, dairy, gluten & sesame.</span>
         </div>
       </div>
