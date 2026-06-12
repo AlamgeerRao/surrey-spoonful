@@ -56,7 +56,7 @@ export function SiteHeader() {
             className="grid h-9 w-9 place-items-center rounded-full text-primary-foreground"
             style={{ background: "var(--gradient-warm)" }}
           >
-            <span className="font-display text-lg leading-none">H</span>
+            <span className="font-display text-lg leading-none">Z</span>
           </span>
           <span className="flex flex-col leading-tight">
             <span className="font-display text-base tracking-wide text-foreground">
