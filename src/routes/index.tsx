@@ -319,7 +319,7 @@ useEffect(() => {
   {/* ✅ MAIN CONTENT WRAPPER */}
   <div className="mx-auto flex min-h-[55vh] max-w-6xl flex-col justify-center px-4 py-14 sm:min-h-[60vh] sm:px-6">
 
-    {/* ✅ TEXT SECTION */}
+    {/* TEXT BLOCK */}
     <div>
       <h1 className="max-w-4xl font-display text-4xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
         Home‑cooked Pakistani food, delivered with love.
@@ -332,14 +332,15 @@ useEffect(() => {
         </span>.
       </p>
 
-      <p className="mt-4 max-w-2xl text-sm font-medium text-white/95 sm:text-base">
+      {/* ✅ Slightly more prominent */}
+      <p className="mt-4 max-w-2xl text-sm font-semibold text-white sm:text-base">
         For any event or gathering, we can provide freshly prepared
         home‑cooked food. Message us on WhatsApp to discuss your
         requirements.
       </p>
     </div>
 
-    {/* ✅ HERO TRUST BAR */}
+    {/* HERO TRUST BAR */}
     <div className="mt-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
       <div className="grid grid-cols-2 gap-3 text-xs text-white sm:grid-cols-4 sm:text-sm">
 
@@ -355,12 +356,12 @@ useEffect(() => {
 
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4" />
-          <span>Breakfast (weekends), lunch & dinner</span>
+          <span>Breakfast (weekends)</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Leaf className="h-4 w-4" />
-          <span>Made fresh daily</span>
+          <span>Lunch & dinner · Made fresh daily</span>
         </div>
       </div>
     </div>
