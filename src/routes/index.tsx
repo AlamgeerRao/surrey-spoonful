@@ -354,14 +354,17 @@ useEffect(() => {
           <span>{formatPrice(DELIVERY_FEE_PENCE)} delivery</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4" />
-          <span>Breakfast (weekends)</span>
-        </div>
-
+        <div className="flex items-start gap-2">
+          <Clock className="mt-0.5 h-4 w-4 shrink-0" />
+          <span className="leading-tight">
+          Breakfast (weekends)
+          <br />
+          Lunch & dinner
+          </span>
+      </div>
         <div className="flex items-center gap-2">
           <Leaf className="h-4 w-4" />
-          <span>Lunch & dinner · Made fresh daily</span>
+          <span> Made fresh daily</span>
         </div>
       </div>
     </div>
