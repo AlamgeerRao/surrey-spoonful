@@ -396,100 +396,70 @@ useEffect(() => {
           })}
         </div>
       </section>
-  {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
+   {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
 <section
   id="delivery-slot-section"
   className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
 >
-  <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-
-    {/* LEFT */}
-    <div>
-      <div className="text-xs uppercase tracking-[0.2em] text-primary">
-        Step 2 — Select an Available Delivery Slot
-      </div>
-
-      <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
-        Choose your delivery slot
-      </h2>
-
-      {selectedSlot && (
-        <p className="mt-2 text-sm text-foreground">
-          Selected slot:{" "}
-          <strong>
-            {deliverySlots.find((s) => s.id === selectedSlot)?.title}
-          </strong>
-        </p>
-      )}
+  {/* HEADER */}
+  <div>
+    <div className="text-xs uppercase tracking-[0.2em] text-primary">
+      Step 2 — Select an Available Delivery Slot
     </div>
 
-    {/* RIGHT — SLOT BUTTONS */}
-    <div>
+    <h2 className="mt-1 font-display text-3xl text-foreground sm:text-4xl">
+      Choose your delivery slot
+    </h2>
 
-      {/* ✅ ALL SLOT BUTTONS IN ONE LINE */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        {["breakfast", "lunch", "dinner"].map((slotId) => {
-          const slot = deliverySlots.find((s) => s.id === slotId);
-          if (!slot) return null;
-
-          return (
-            <button
-              key={slot.id}
-              type="button"
-              disabled={!slot.available}
-              onClick={() => setSelectedSlot(slot.id)}
-              className={`flex-1 rounded-2xl border p-4 text-left transition-colors ${
-                selectedSlot === slot.id
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card"
-              } ${
-                !slot.available
-                  ? "cursor-not-allowed bg-muted/40 opacity-70"
-                  : "hover:bg-accent"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="font-display text-base text-foreground sm:text-lg">
-                    {slot.title}
-                  </div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {slot.time}
-                  </div>
-                </div>
-
-                <span
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                    slot.available
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-amber-100 text-amber-900"
-                  }`}
-                >
-                  {slot.available ? "Available" : "Unavailable"}
-                </span>
-              </div>
-
-              {slot.reason && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {slot.reason}
-                </p>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ✅ SINGLE INFO LINE BELOW BUTTONS */}
-      <p className="mt-3 text-sm text-muted-foreground whitespace-nowrap overflow-x-auto">
-        Orders close <strong className="text-foreground">2 hours</strong> before your slot. Showing slot availability for{" "}
-        <strong className="text-foreground">{selectedDay.label}</strong>.
+    {selectedSlot && (
+      <p className="mt-2 text-sm text-foreground">
+        Selected slot:{" "}
+        <strong>
+          {deliverySlots.find((s) => s.id === selectedSlot)?.title}
+        </strong>
       </p>
+    )}
+  </div>
 
-    </div>
+  {/* ✅ SLOT BUTTONS — LEFT ALIGNED LIKE DAY PICKER */}
+  <div className="mt-6 flex flex-wrap gap-3">
+
+    {["breakfast", "lunch", "dinner"].map((slotId) => {
+      const slot = deliverySlots.find((s) => s.id === slotId);
+      if (!slot) return null;
+
+      return (
+        <button
+          key={slot.id}
+          type="button"
+          disabled={!slot.available}
+          onClick={() => setSelectedSlot(slot.id)}
+          className={`min-w-[160px] rounded-full border px-5 py-3 text-sm transition-colors ${
+            selectedSlot === slot.id
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-card text-foreground hover:bg-secondary"
+          } ${
+            !slot.available ? "cursor-not-allowed opacity-50" : ""
+          }`}
+        >
+          <div className="font-medium">{slot.title}</div>
+
+          <div className="text-xs text-muted-foreground mt-1">
+            {slot.time}
+          </div>
+        </button>
+      );
+    })}
 
   </div>
-</section>    
 
+  {/* ✅ INFO LINE — LEFT ALIGNED UNDER BUTTONS */}
+  <p className="mt-3 text-sm text-muted-foreground">
+    Orders close <strong className="text-foreground">2 hours</strong> before your slot. Showing slot availability for{" "}
+    <strong className="text-foreground">{selectedDay.label}</strong>.
+  </p>
+</section> 
+      
   {/* SELECTED DAY MENU */}
 <Section
   id="selected-day-menu"
