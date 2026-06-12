@@ -658,7 +658,7 @@ function Section({
   return (
     <section
       id={id}
-      className="mx-auto max-w-6xl border-t border-border px-4 py-16 sm:px-6"
+      className={`mx-auto max-w-6xl px-4 py-16 sm:px-6 ${className || ""}`}
     >
       <div className="mb-6">
         <div className="text-xs uppercase tracking-[0.2em] text-primary">
