@@ -399,7 +399,7 @@ useEffect(() => {
 {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
 <section
   id="delivery-slot-section"
-  className="mx-auto max-w-6xl px-4 pt-10 pb-4 sm:px-6"
+  className="mx-auto max-w-6xl px-4 pt-10 pb-2 sm:px-6"
 >
   {/* HEADER */}
   <div>
@@ -423,7 +423,6 @@ useEffect(() => {
 
   {/* SLOT BUTTONS */}
   <div className="mt-6 flex flex-wrap gap-3">
-
     {["breakfast", "lunch", "dinner"].map((slotId) => {
       const slot = deliverySlots.find((s) => s.id === slotId);
       if (!slot) return null;
@@ -431,7 +430,6 @@ useEffect(() => {
       const isUnavailable = !slot.available;
       const isSelected = selectedSlot === slot.id;
 
-      // ICONS
       const icon =
         slot.id === "breakfast"
           ? "☀️"
@@ -454,7 +452,6 @@ useEffect(() => {
           } ${isUnavailable ? "cursor-not-allowed opacity-100" : ""}`}
         >
           <div className="flex flex-col">
-
             {/* TITLE + ICON */}
             <span className="font-medium flex items-center gap-2">
               <span>{icon}</span>
@@ -474,18 +471,16 @@ useEffect(() => {
               {slot.time}
             </span>
 
-            {/* ✅ REASON (VERY CLEAR NOW) */}
+            {/* REASON */}
             {isUnavailable && slot.reason && (
               <span className="mt-1 text-xs font-medium text-amber-800">
                 {slot.reason}
               </span>
             )}
-
           </div>
         </button>
       );
     })}
-
   </div>
 
   {/* INFO LINE */}
@@ -493,7 +488,6 @@ useEffect(() => {
     Orders close <strong className="text-foreground">2 hours</strong> before your slot. Showing slot availability for{" "}
     <strong className="text-foreground">{selectedDay.label}</strong>.
   </p>
-
 </section>
       
   {/* SELECTED DAY MENU */}
