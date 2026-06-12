@@ -502,7 +502,7 @@ useEffect(() => {
   id="selected-day-menu"
   title="Step 3 - Select delivery menu"
   subtitle={`Available for ${selectedDay.label}`}
-  className="[&_.separator]:hidden pt-4"
+  className="[&_*]:!border-t-0 [&_*]:!border-b-0 pt-4"
 >
 
   {/* ✅ DELIVERY SUMMARY BAR (ALWAYS VISIBLE) */}
