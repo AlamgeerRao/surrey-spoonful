@@ -58,9 +58,11 @@ export function SiteHeader() {
           >
             <span className="font-display text-lg leading-none">H</span>
           </span>
-
           <span className="flex flex-col leading-tight">
-            <span className="font-display text-base text-foreground">
+            <span className="font-display text-base tracking-wide text-foreground">
+              ZAIQAS
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
               Homemade Pakistani Kitchen
             </span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
