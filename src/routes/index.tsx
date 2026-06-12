@@ -396,7 +396,7 @@ useEffect(() => {
           })}
         </div>
       </section>
-   {/* DELIVERY INFO + CLICKABLE SLOT TILES */}
+{/* DELIVERY INFO + CLICKABLE SLOT TILES */}
 <section
   id="delivery-slot-section"
   className="mx-auto max-w-6xl px-4 py-10 sm:px-6"
@@ -421,31 +421,57 @@ useEffect(() => {
     )}
   </div>
 
-  {/* ✅ SLOT BUTTONS — LEFT ALIGNED LIKE DAY PICKER */}
+  {/* SLOT BUTTONS (LEFT ALIGNED LIKE DAY PICKER) */}
   <div className="mt-6 flex flex-wrap gap-3">
 
     {["breakfast", "lunch", "dinner"].map((slotId) => {
       const slot = deliverySlots.find((s) => s.id === slotId);
       if (!slot) return null;
 
+      const isUnavailable = !slot.available;
+      const isSelected = selectedSlot === slot.id;
+
       return (
         <button
           key={slot.id}
           type="button"
-          disabled={!slot.available}
+          disabled={isUnavailable}
           onClick={() => setSelectedSlot(slot.id)}
-          className={`min-w-[160px] rounded-full border px-5 py-3 text-sm transition-colors ${
-            selectedSlot === slot.id
+          className={`min-w-[180px] rounded-full border px-5 py-3 text-sm text-left transition-colors ${
+            isSelected
               ? "border-primary bg-primary text-primary-foreground"
+              : isUnavailable
+              ? "border-amber-300 bg-amber-50 text-amber-900"
               : "border-border bg-card text-foreground hover:bg-secondary"
-          } ${
-            !slot.available ? "cursor-not-allowed opacity-50" : ""
-          }`}
+          } ${isUnavailable ? "cursor-not-allowed opacity-90" : ""}`}
         >
-          <div className="font-medium">{slot.title}</div>
+          <div className="flex flex-col">
 
-          <div className="text-xs text-muted-foreground mt-1">
-            {slot.time}
+            {/* TITLE */}
+            <span className="font-medium">
+              {slot.title}
+            </span>
+
+            {/* ✅ TIME — NOW FIXED FOR SELECTED STATE */}
+            <span
+              className={`mt-1 text-xs ${
+                isSelected
+                  ? "text-primary-foreground/90"
+                  : isUnavailable
+                  ? "text-amber-800"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {slot.time}
+            </span>
+
+            {/* ✅ REASON — CLEARLY SHOWN */}
+            {isUnavailable && slot.reason && (
+              <span className="mt-1 text-xs font-medium text-amber-800">
+                {slot.reason}
+              </span>
+            )}
+
           </div>
         </button>
       );
@@ -453,12 +479,13 @@ useEffect(() => {
 
   </div>
 
-  {/* ✅ INFO LINE — LEFT ALIGNED UNDER BUTTONS */}
+  {/* INFO LINE */}
   <p className="mt-3 text-sm text-muted-foreground">
     Orders close <strong className="text-foreground">2 hours</strong> before your slot. Showing slot availability for{" "}
     <strong className="text-foreground">{selectedDay.label}</strong>.
   </p>
-</section> 
+
+</section>
       
   {/* SELECTED DAY MENU */}
 <Section
