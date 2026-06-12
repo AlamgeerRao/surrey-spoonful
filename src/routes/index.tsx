@@ -421,7 +421,7 @@ useEffect(() => {
     )}
   </div>
 
-  {/* SLOT BUTTONS (LEFT ALIGNED LIKE DAY PICKER) */}
+  {/* SLOT BUTTONS */}
   <div className="mt-6 flex flex-wrap gap-3">
 
     {["breakfast", "lunch", "dinner"].map((slotId) => {
@@ -430,6 +430,14 @@ useEffect(() => {
 
       const isUnavailable = !slot.available;
       const isSelected = selectedSlot === slot.id;
+
+      // ICONS
+      const icon =
+        slot.id === "breakfast"
+          ? "☀️"
+          : slot.id === "lunch"
+          ? "🍽"
+          : "🌙";
 
       return (
         <button
@@ -441,18 +449,19 @@ useEffect(() => {
             isSelected
               ? "border-primary bg-primary text-primary-foreground"
               : isUnavailable
-              ? "border-amber-300 bg-amber-50 text-amber-900"
+              ? "border-amber-400 bg-white text-amber-900"
               : "border-border bg-card text-foreground hover:bg-secondary"
-          } ${isUnavailable ? "cursor-not-allowed opacity-90" : ""}`}
+          } ${isUnavailable ? "cursor-not-allowed opacity-100" : ""}`}
         >
           <div className="flex flex-col">
 
-            {/* TITLE */}
-            <span className="font-medium">
+            {/* TITLE + ICON */}
+            <span className="font-medium flex items-center gap-2">
+              <span>{icon}</span>
               {slot.title}
             </span>
 
-            {/* ✅ TIME — NOW FIXED FOR SELECTED STATE */}
+            {/* TIME */}
             <span
               className={`mt-1 text-xs ${
                 isSelected
@@ -465,7 +474,7 @@ useEffect(() => {
               {slot.time}
             </span>
 
-            {/* ✅ REASON — CLEARLY SHOWN */}
+            {/* ✅ REASON (VERY CLEAR NOW) */}
             {isUnavailable && slot.reason && (
               <span className="mt-1 text-xs font-medium text-amber-800">
                 {slot.reason}
