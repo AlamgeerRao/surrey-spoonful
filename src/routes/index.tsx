@@ -497,6 +497,7 @@ useEffect(() => {
 </section>
       
   {/* SELECTED DAY MENU */}
+      <div className="hidden sm:block h-px bg-transparent"></div>
 <Section
   id="selected-day-menu"
   title="Step 3 - Select delivery menu"
